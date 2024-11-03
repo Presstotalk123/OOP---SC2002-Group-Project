@@ -3,7 +3,10 @@ package hms;
 import java.util.Scanner;
 
 public class Doctor extends User {
+    public static String role = "doctor";
+
     private String specialty;
+    
 
     public Doctor(String id, String name, String password) {
         super(id, name, password);

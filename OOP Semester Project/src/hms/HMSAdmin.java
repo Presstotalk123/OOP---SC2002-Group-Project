@@ -8,6 +8,8 @@ import java.util.Scanner;
 import hms.Appointments.Appointment;
 
 public class HMSAdmin extends User {
+    public static String role = "admin";
+    
     private List<Staff> staffList;
     private List<Appointment> appointmentList;
     private Inventory inventory;

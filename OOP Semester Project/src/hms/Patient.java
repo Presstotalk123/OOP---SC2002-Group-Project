@@ -13,6 +13,8 @@ import hms.MedicalRecords.MedicalRecordPatientView;
 
 public class Patient extends User {
 
+    public static String role = "patient";
+
     // Store MedicalRecord as a PatientView so only Patient methods are exposed.
     private MedicalRecordPatientView patientRecord;
 

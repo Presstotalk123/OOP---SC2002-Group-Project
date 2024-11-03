@@ -7,7 +7,10 @@ import java.util.Scanner;
 public class Main {
 
   public static void main(String[] args) {
+    System.out.println("Welcome to Hospital Management System!");
+  }
 
+  public boolean eventLoop(Scanner scanner) {
     // Load data on program startup
     List<User> users;
     try {
@@ -16,43 +19,79 @@ public class Main {
     } catch (IOException error) {
       System.out.println("Error occurred when loading data: ");
       error.printStackTrace();
-      return;
+      return false;
     }
 
-    System.out.println("Welcome to Hospital Management System!");
+    System.out.print("""
+          What would you like to do?
+          1. Log In
+          2. Sign Up
+        """);
 
-    while (true) {
-      Scanner input = new Scanner(System.in);
+    int input = scanner.nextInt();
+    scanner.nextLine();
 
-      System.out.print("Please enter your Hospital ID: ");
-      String hospitalId = input.nextLine().replace("\n", "");
-      System.out.print("Please enter your Password: ");
-      String password = input.nextLine().replace("\n", "");
+    switch (input) {
+      case 1:
 
-      User loggedInUser = null;
+        System.out.print("Please enter your Hospital ID: ");
+        String hospitalId = scanner.nextLine().replace("\n", "");
+        System.out.print("Please enter your Password: ");
+        String password = scanner.nextLine().replace("\n", "");
 
-      for (int i = 0; i < users.size(); i += 1) {
+        User loggedInUser = null;
 
-        User user = users.get(i);
-        if (user.id.equals(hospitalId) && user.login(password)) {
-          loggedInUser = user;
+        for (int i = 0; i < users.size(); i += 1) {
+
+          User user = users.get(i);
+          if (user.id.equals(hospitalId) && user.login(password)) {
+            loggedInUser = user;
+          }
+
         }
 
-      }
+        if (loggedInUser == null) {
+          System.out.println("Hospital ID or Password is incorrect! Please try again.");
+        } else {
+          System.out.println("> Successfully logged in as ".concat(loggedInUser.name));
 
-      if (loggedInUser == null) {
-        System.out.println("Hospital ID or Password is incorrect! Please try again.");
-      } else {
-        System.out.println("> Successfully logged in as ".concat(loggedInUser.name));
+          // Keep repeating the event loop of the user until eventLoop returns false
+          // in other words, user logs out.
+          while (loggedInUser.eventLoop(scanner)) {
+          }
+        }
+        break;
 
-        // Keep repeating the event loop of the user until eventLoop returns false
-        // in other words, user logs out.
-        while (loggedInUser.eventLoop(input)) {}
-      }
+      case 2:
+        System.out.print("Enter a name for this new user: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter a password for this new user: ");
+        String passwd = scanner.nextLine();
+        while (true) {
+          System.out.print("""
+                Select what kind of user this is:
+                1. Patient
+                2. Admin
+                3. TODO - Teammates pls do this
+              """);
+          int selection = scanner.nextInt();
 
+          if (selection == 1) {
+            break;
+          } else {
+            break;
+          }
+          
+
+        }
+        break;
+
+      default:
+        System.out.println("Invalid Selection. Please try again.");
+        break;
     }
 
-
+    return true;
   }
 
 }
