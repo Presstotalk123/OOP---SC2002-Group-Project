@@ -102,6 +102,16 @@ public class Pharmacist extends Staff {
             record.updateStatus(status);
             record.save();
             found = true;
+            
+            // Update inventory if the status is set to dispensed
+            if (status == PrescriptionStatus.Dispensed) {
+                Medication med = inventory.getMedication(record.getMedicationName());
+                if (med != null) {
+                    int newStockLevel = med.getStockLevel() - 1; // Assume 1 unit is dispensed per prescription
+                    inventory.updateStockLevel(record.getMedicationName(), newStockLevel);
+                    inventory.saveToCSV("../data/inventory.csv");
+                }
+            }
             break; // Exit the loop as we found the prescription
         }
     }
