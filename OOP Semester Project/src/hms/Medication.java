@@ -26,4 +26,13 @@ public class Medication {
     public void updateStockLevel(int quantity) {
         this.stockLevel = quantity;
     }
+
+    @Override
+    public String toString() {
+        return "InventoryItem{" +
+                "Name='" + medicationName + '\'' +
+                ", Stock=" + stockLevel +
+                ", Low Stock Level=" + lowStockAlertLevel +
+                '}';
+    }
 }
