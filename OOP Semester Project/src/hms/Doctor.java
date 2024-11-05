@@ -1,13 +1,17 @@
 package hms;
 
-import java.io.*;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
+import java.util.Random;
+
+import hms.Appointments.Appointment;
 
 public class Doctor extends Staff {
-
-    // I removed this as I'm not sure what your intention for specialisation is.
-    // It doesn't add any functionality so idk what you're planning to do with it.
-    // private String specialisation;
 
     public Doctor(Scanner scanner) {
         super(scanner, "doctor");
@@ -22,284 +26,121 @@ public class Doctor extends Staff {
         super(id, name, password, "doctor");
     }
 
-    // TODO: Add EventLoop for all Doctor Menu items
+    // Event loop for Doctor's menu
     public boolean eventLoop(Scanner scanner) {
         System.out.print("""
                 Doctor Menu:
-                1. ...
-                7. Log Out
+                1. View Patient Medical Records
+                2. Update Patient Medical Records
+                3. View Personal Schedule
+                4. Set Availability for Appointments
+                5. Accept or Decline Appointment Requests
+                6. View Upcoming Appointments
+                7. Record Appointment Outcomes
+                8. Log Out
                 Enter your choice:""");
 
         int choice = scanner.nextInt();
-        scanner.nextLine();
+        scanner.nextLine(); // Consume newline
         switch (choice) {
+            case 3:
+                viewPersonalSchedule();
+                break;
+            case 4:
+                setAvailabilityForAppointments();
+                break;
+            case 6:
+                viewUpcomingAppointments();
+                break;
             case 7:
-                return false;
+                recordAppointmentOutcomes();
+                break;
+            case 8:
+                return false; // Log out
             default:
-                System.out.println("Invalid choice. Please enter a number from 1 to 7.");
+                System.out.println("Invalid choice. Please enter a number from 1 to 8.");
                 break;
         }
         return true;
     }
 
-    // TODO: Add proper Doctor formatting
-    public String toString() {
-        // System.out.printf("%s - %s - %s, %s, %s", this.id, this.role, this.name, this.age, this.gender);
-        return this.id + " - Doctor - " + this.name;
+    // Placeholder method for "View Personal Schedule"
+    private void viewPersonalSchedule() {
+        System.out.println("Viewing personal schedule... (placeholder)");
     }
 
+    // Placeholder method for "Set Availability for Appointments"
+    private void setAvailabilityForAppointments() {
+       Scanner scanner = new Scanner(System.in);
+        
+        try {
+            System.out.print("Enter start date and time (e.g., 2024-12-01 09:00): ");
+            String startInput = scanner.nextLine();
+            LocalDateTime startDateTime = LocalDateTime.parse(startInput, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+            System.out.print("Enter end time (e.g., 2024-12-01 17:00): ");
+            String endInput = scanner.nextLine();
+            LocalDateTime endDateTime = LocalDateTime.parse(endInput, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            
+            System.out.print("Enter slot duration in minutes (e.g., 30 for 30-minute slots): ");
+            int slotDuration = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+            
+            List<Appointment> newSlots = generateTimeSlots(startDateTime, endDateTime, slotDuration);
+            saveTimeSlots(newSlots);
+            
+            System.out.println("Availability has been set successfully!");
+        } catch (Exception e) {
+            System.out.println("Error parsing date/time. Please try again.");
+        }
+    }
+
+    //Making helper function to generate time slots
+    private List<Appointment> generateTimeSlots(LocalDateTime start, LocalDateTime end, int intervalMinutes) {
+        List<Appointment> slots = new ArrayList<>();
+        LocalDateTime slotTime = start;
+        Random random=new Random();
+        while (slotTime.isBefore(end)) {
+            int AppointmentID=random.nextInt(9000)+1000;
+            String appointmentID = Integer.toString(AppointmentID);
+            Appointment slot = new Appointment(
+                appointmentID,          // appointmentId
+                Optional.empty(),       // patientId (no patient yet)
+                this.id,                // doctor's ID
+                Optional.empty(),       // status
+                slotTime,
+                Optional.empty()        // outcomeRecordId
+            );
+            slots.add(slot);
+            slotTime = slotTime.plusMinutes(intervalMinutes);
+        }
+        return slots;
+    }
+    //Making helper function to save time slots
+    private void saveTimeSlots(List<Appointment> slots) {
+        for (Appointment slot : slots) {
+            try {
+                slot.save();
+            } catch (IOException e) {
+                System.out.println("Error saving appointment slot: " + e.getMessage());
+            }
+        }
+    }
+
+
+
+    // Placeholder method for "View Upcoming Appointments"
+    private void viewUpcomingAppointments() {
+        System.out.println("Viewing upcoming appointments... (placeholder)");
+    }
+
+    // Placeholder method for "Record Appointment Outcomes"
+    private void recordAppointmentOutcomes() {
+        System.out.println("Recording appointment outcomes... (placeholder)");
+    }
+
+    // TODO: Add proper Doctor formatting
+    public String toString() {
+        return this.id + " - Doctor - " + this.name;
+    }
 }
-
-// NOTE:
-// Nothing below has anything to do with the required Doctor functionality
-// Every method implemented below (other than the non-required specialty) is generic
-// and applies to all Staff. Thus, implemented in the Staff class, not Doctor.
-
-// public class Doctor extends Staff {
-//     private final String path="Doctor.csv";
-//     private String specialty;
-//     private List<Appointment> appointments;
-//     private String Username;
-
-//     public Doctor(int hospitalID, String password, String name, Date dateOfBirth, String gender, 
-//                   ContactInfo contactInfo, String specialty, String Username, String csvFilePath) {
-//         super(hospitalID, password, name, dateOfBirth, gender, contactInfo);
-//         this.specialty = specialty;
-//         this.Username = Username;
-//         this.appointments = loadAppointmentsFromCSV(path);  // Load initial appointments
-//     }
-//     public void saveToCSV() {
-//         try (FileWriter fileWriter = new FileWriter(path, true);
-//              PrintWriter printWriter = new PrintWriter(fileWriter)) {
-//             printWriter.printf("%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
-//                     hospitalID,
-//                     password,
-//                     getName(), // Use the getter here instead of direct field access
-//                     getDateOfBirth().toString(),
-//                     getGender(),
-//                     getContactInfo().getPhoneNumber(),
-//                     getContactInfo().getEmailAddress(),
-//                     this.specialty=specialty,
-//                     this.Username=Username);
-                    
-//         } catch (IOException e) {
-//             e.printStackTrace();
-//         }
-//     }
-
-//     public String getSpeciality(String Username) {
-//         String line;
-//         String separator = ","; 
-    
-//         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//             // Skip header row
-//             br.readLine();
-    
-//             // Process each line in the CSV file
-//             while ((line = br.readLine()) != null) {
-//                 String[] values = line.split(separator);
-    
-//                 // Ensure values array has the correct length before accessing specific indices
-//                 if (values.length >= 9 && values[8].equals(Username)) { // Assuming 'Username' is at index 8
-//                     return values[7]; // Assuming 'specialty' is at index 7
-//                 }
-//             }
-//         } catch (IOException e) {
-//             e.printStackTrace();
-//         }
-    
-//         return null; // return null if username not found
-//     }
-
-//     public boolean setSpeciality(String Username, String newSpecialty) {
-//         List<String> lines = new ArrayList<>();
-//         String separator = ",";
-//         boolean isUpdated = false;
-    
-//         // Read the file and store each line in a list
-//         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//             String line = br.readLine(); // Read the header
-//             if (line != null) {
-//                 lines.add(line); // Add header to the list
-//             }
-    
-//             // Process each line in the CSV file
-//             while ((line = br.readLine()) != null) {
-//                 String[] values = line.split(separator);
-    
-//                 // Check if this line's Username matches the target Username
-//                 if (values.length >= 9 && values[8].equals(Username)) { // Username is at index 8
-//                     values[7] = newSpecialty; // Update specialty at index 7
-//                     isUpdated = true;
-//                 }
-    
-//                 // Reconstruct the line and add it to the list
-//                 lines.add(String.join(separator, values));
-//             }
-//         } catch (IOException e) {
-//             e.printStackTrace();
-//             return false; // Return false if there was an error reading the file
-//         }
-    
-//         // Write the updated lines back to the CSV file
-//         if (isUpdated) {
-//             try (PrintWriter writer = new PrintWriter(new FileWriter(path))) {
-//                 for (String outputLine : lines) {
-//                     writer.println(outputLine);
-//                 }
-//             } catch (IOException e) {
-//                 e.printStackTrace();
-//                 return false; // Return false if there was an error writing to the file
-//             }
-//         }
-    
-//         return isUpdated; // Return true if the specialty was successfully updated
-//     }
-    
-//     public String getHospitalID(String Username) {
-//         String line;
-//         String separator = ",";
-    
-//         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//             br.readLine(); // Skip header row
-    
-//             while ((line = br.readLine()) != null) {
-//                 String[] values = line.split(separator);
-    
-//                 if (values.length >= 9 && values[8].equals(Username)) { // Username at index 8
-//                     return values[0]; // hospitalID at index 0
-//                 }
-//             }
-//         } catch (IOException e) {
-//             e.printStackTrace();
-//         }
-    
-//         return null; // Return null if username not found
-//     }
-
-//     public String getPassword(String Username) {
-//         String line;
-//         String separator = ",";
-    
-//         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//             br.readLine(); // Skip header row
-    
-//             while ((line = br.readLine()) != null) {
-//                 String[] values = line.split(separator);
-    
-//                 if (values.length >= 9 && values[8].equals(Username)) { // Username at index 8
-//                     return values[1]; // password at index 1
-//                 }
-//             }
-//         } catch (IOException e) {
-//             e.printStackTrace();
-//         }
-    
-//         return null; // Return null if username not found
-//     }
-    
-//     public String getName(String Username) {
-//         String line;
-//         String separator = ",";
-    
-//         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//             br.readLine(); // Skip header row
-    
-//             while ((line = br.readLine()) != null) {
-//                 String[] values = line.split(separator);
-    
-//                 if (values.length >= 9 && values[8].equals(Username)) { // Username at index 8
-//                     return values[2]; // name at index 2
-//                 }
-//             }
-//         } catch (IOException e) {
-//             e.printStackTrace();
-//         }
-    
-//         return null; // Return null if username not found
-//     }
-
-//     public String getDateOfBirth(String Username) {
-//         String line;
-//         String separator = ",";
-    
-//         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//             br.readLine(); // Skip header row
-    
-//             while ((line = br.readLine()) != null) {
-//                 String[] values = line.split(separator);
-    
-//                 if (values.length >= 9 && values[8].equals(Username)) { // Username at index 8
-//                     return values[3]; // dateOfBirth at index 3
-//                 }
-//             }
-//         } catch (IOException e) {
-//             e.printStackTrace();
-//         }
-    
-//         return null; // Return null if username not found
-//     }
-
-//     public String getGender(String Username) {
-//         String line;
-//         String separator = ",";
-    
-//         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//             br.readLine(); // Skip header row
-    
-//             while ((line = br.readLine()) != null) {
-//                 String[] values = line.split(separator);
-    
-//                 if (values.length >= 9 && values[8].equals(Username)) { // Username at index 8
-//                     return values[4]; // gender at index 4
-//                 }
-//             }
-//         } catch (IOException e) {
-//             e.printStackTrace();
-//         }
-    
-//         return null; // Return null if username not found
-//     }
-
-//     public String getPhoneNumber(String Username) {
-//         String line;
-//         String separator = ",";
-    
-//         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//             br.readLine(); // Skip header row
-    
-//             while ((line = br.readLine()) != null) {
-//                 String[] values = line.split(separator);
-    
-//                 if (values.length >= 9 && values[8].equals(Username)) { // Username at index 8
-//                     return values[5]; // phoneNumber at index 5
-//                 }
-//             }
-//         } catch (IOException e) {
-//             e.printStackTrace();
-//         }
-    
-//         return null; // Return null if username not found
-//     }
-
-//     public String getEmailAddress(String Username) {
-//         String line;
-//         String separator = ",";
-    
-//         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//             br.readLine(); // Skip header row
-    
-//             while ((line = br.readLine()) != null) {
-//                 String[] values = line.split(separator);
-    
-//                 if (values.length >= 9 && values[8].equals(Username)) { // Username at index 8
-//                     return values[6]; // emailAddress at index 6
-//                 }
-//             }
-//         } catch (IOException e) {
-//             e.printStackTrace();
-//         }
-    
-//         return null; // Return null if username not found
-//     }
-// }
