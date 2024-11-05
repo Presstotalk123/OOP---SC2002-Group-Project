@@ -95,6 +95,8 @@ public class Pharmacist extends Staff {
 
     public void updatePrescriptionStatus(String prescriptionId, PrescriptionStatus status) throws IOException {
     List<Prescription> records = Prescription.getAll();
+    Inventory inventory = new Inventory();
+    inventory.loadFromCSV(); // Load the current inventory
     boolean found = false;
 
     for (Prescription record : records) {
