@@ -5,6 +5,8 @@ import hms.Appointments.Appointment;
 import hms.Appointments.AppointmentStatus;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.time.format.DateTimeFormatter;
@@ -15,7 +17,6 @@ public class Doctor extends Staff {
 
     // I removed this as I'm not sure what your intention for specialisation is.
     // It doesn't add any functionality so idk what you're planning to do with it.
-    private String specialisation;
 
 
     public Doctor(Scanner scanner) {
@@ -26,7 +27,36 @@ public class Doctor extends Staff {
             System.out.println("Unable to save user " + name + " due to IOException: " + error.getMessage());
         }
     }
+    // Doctor.java
+    @Override
+    public void save() throws IOException {
+        // staff.csv: id,gender,age,role,phoneNumber,email,specialization
+        List<String> lines = Files.readAllLines(Paths.get("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/staff.csv"));
+        FileOutputStream output = new FileOutputStream("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/staff.csv");
 
+        boolean isEntryFound = false;
+        for (int i = 0; i < lines.size(); i++) {
+            String[] staff = lines.get(i).split(",");
+
+            if (staff.length == 7 && staff[0].equals(this.id)) {
+                String newEntry = this.id + "," + this.gender.toString().toLowerCase() + "," + this.age + ","
+                        + this.role + "," + this.phoneNumber + "," + this.emailAddress + "," + this.specialization + "\n";
+                output.write(newEntry.getBytes());
+                isEntryFound = true;
+            } else {
+                String line = lines.get(i) + "\n";
+                output.write(line.getBytes());
+            }
+        }
+
+        if (!isEntryFound) {
+            String newEntry = this.id + "," + this.gender.toString().toLowerCase() + "," + this.age + ","
+                    + this.role + "," + this.phoneNumber + "," + this.emailAddress + "," + this.specialization + "\n";
+            output.write(newEntry.getBytes());
+        }
+
+        output.close();
+    }
     public Doctor(String id, String name, String password) throws IOException {
         super(id, name, password, "doctor");
     }

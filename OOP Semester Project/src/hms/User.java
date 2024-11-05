@@ -29,7 +29,7 @@ public abstract class User {
 
     Random rand = new Random();
 
-    int id = rand.nextInt(1000); // TODO: Add exisitng ID check
+    int id = rand.nextInt(9000)+1000; // TODO: Add exisitng ID check
 
     this.id = Integer.toString(id);
     this.name = name;

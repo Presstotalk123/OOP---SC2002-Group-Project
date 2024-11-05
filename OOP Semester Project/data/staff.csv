@@ -1,7 +1,10 @@
 id,gender,age,role,number,email,specialization
 56,male,44,doctor,98123476,max@maxxy.com,cardiologist
 296,female,32,pharmacist,99887766,gina@goog.com,NA
-816,male,20,doctor,24241515,samjam@gmail.comNA
-697,male,20,doctor,24241515,samjam@gmail.comNANA
-296,female,32,pharmacist,99887766,gina@goog.comNA
-251,male,24,doctor,12121212,maximus@gmail.comNA
+816,male,20,doctor,24241515,samjam@gmail.com,NA
+697,male,20,doctor,24241515,samjam@gmail.com,NA
+296,female,32,pharmacist,99887766,gina@goog.com,NA
+251,male,24,doctor,12121212,maximus@gmail.com,NA
+9909,male,19,doctor,85900799,samjam@gmail.comNA
+4661,male,19,doctor,88888888,samjam@gmail.comNA
+3689,male,19,doctor,99999999,samjam@gmail.comcardiologist

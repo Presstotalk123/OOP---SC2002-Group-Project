@@ -25,13 +25,13 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
     private ArrayList<String> diagnosis;
     private ArrayList<String> prescriptions;
     private ArrayList<String> treatments;
-    private final String bloodType; // final as this field should not be updated.
+    private String bloodType; // final as this field should not be updated.
 
     public MedicalRecords(Scanner scanner, String id, String name) {
         while (true) {
             System.out.print("Enter the Date of Birth for this user in the format (DD-MM-YYYY): ");
             String dateOfBirth = scanner.nextLine();
-            if (dateOfBirth.matches("(0[1-9]|[12][0-9]|3[01])\\/(0[1-9]|1[0,1,2])\\/(19|20)\\d{2}")) {
+            if (dateOfBirth.matches("(0[1-9]|[12][0-9]|3[01])\\-(0[1-9]|1[0,1,2])\\-(19|20)\\d{2}")) {
                 this.dateOfBirth = dateOfBirth;
                 break;
             } else {
@@ -140,7 +140,7 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
     // From MedicalRecordPatientAccess
     public void updatePhoneNumber(String phoneNumber) {
         // TODO: Maybe add validation?
-        if (phoneNumber.length() > 0) {
+        if (phoneNumber.length() ==8) {
             this.phoneNumber = phoneNumber.replaceAll(",", ""); // come up with better solution for escaping commas
         }
     }

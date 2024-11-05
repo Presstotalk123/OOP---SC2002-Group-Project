@@ -12,8 +12,10 @@ import java.util.Scanner;
 public abstract class Staff extends User {
     public Gender gender;
     public int age;
-    private String phoneNumber;
-    private String emailAddress;
+    public String phoneNumber;
+    public String emailAddress;
+
+    public String specialization="NA";
 
     public Staff(Scanner scanner, String role) {
         super(scanner, role);
@@ -68,6 +70,18 @@ public abstract class Staff extends User {
                 System.out.println("Invalid entry. Please enter a valid email address.");
             }
         }
+        if(role=="doctor"){
+            while(true){
+                System.out.print("Enter the specialization for this doctor: ");
+                String specialization = scanner.nextLine().toLowerCase();
+                if (specialization.matches("^[a-zA-Z]+$")) {
+                    this.specialization = specialization;
+                    break;
+                } else {
+                    System.out.println("Invalid entry. Please enter a valid specialization.");
+                }
+            }
+        }
 
     }
 
@@ -119,7 +133,7 @@ public abstract class Staff extends User {
 
             if (appt.length == 6 && appt[0].equals(this.id)) {
                 String newEntry = this.id + "," + this.gender.toString().toLowerCase() + "," + this.age + ","
-                        + this.role + "," + this.phoneNumber + "," + this.emailAddress + "NA" + "\n";
+                        + this.role + "," + this.phoneNumber + "," + this.emailAddress + ","+ this.specialization + "\n";
                 output.write(newEntry.getBytes());
                 isEntryFound = true;
             } else {
@@ -130,7 +144,7 @@ public abstract class Staff extends User {
 
         if (!isEntryFound) {
             String newEntry = this.id + "," + this.gender.toString().toLowerCase() + "," + this.age + ","
-                        + this.role + "," + this.phoneNumber + "," + this.emailAddress + "NA"+"\n";
+                        + this.role + "," + this.phoneNumber + "," + this.emailAddress + ","+ this.specialization+"\n";
             output.write(newEntry.getBytes());
         }
 
