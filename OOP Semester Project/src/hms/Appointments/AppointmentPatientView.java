@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public interface AppointmentPatientView {
 
@@ -28,13 +29,18 @@ public interface AppointmentPatientView {
 
   // Casts all appointsments into a PatientView
   static List<AppointmentPatientView> loadAllAppointments() throws IOException {
-    List<AppointmentPatientView> appts = new ArrayList<AppointmentPatientView>();
-    Iterator<Appointment> it = Appointment.loadAllAppointments().iterator();
-    while (it.hasNext()) {
-      AppointmentPatientView appt = it.next();
-      appts.add(appt);
+        List<AppointmentPatientView> appts = new ArrayList<>();
+        for (Appointment appt : Appointment.loadAllAppointments()) {
+            appts.add(appt);
+        }
+        return appts;
     }
-    return appts;
-  }
+
+    // New method to load only bookable appointments (those without a patient ID and not canceled)
+    static List<AppointmentPatientView> loadAvailableAppointments() throws IOException {
+        return loadAllAppointments().stream()
+            .filter(AppointmentPatientView::isBookable)
+            .collect(Collectors.toList());
+    }
   // A reschedule is just a cancel then schedule.
 }
