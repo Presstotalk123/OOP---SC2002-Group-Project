@@ -90,35 +90,28 @@ public class Pharmacist extends Staff {
         return true;
     }
 
+
+
+
     public void updatePrescriptionStatus(String prescriptionId, PrescriptionStatus status) throws IOException {
-        // Fetch all prescription outcome records
-        List<Prescription> records = Prescription.getAll();
-        boolean found = false;
+    List<Prescription> records = Prescription.getAll();
+    boolean found = false;
 
-        for (Prescription record : records) {
-            if (record.getID().equals(prescriptionId)) {
-                // Update the status of the prescribed medication
-                // List<Prescription> prescriptions = record.getPrescribedMedications();
-                // for (Prescription prescription : prescriptions) {
-                // if (prescription.getMedicationName().equals(medicationName)) {
-                // prescription.(status); // Update the status
-                // found = true;
-                // break; // Exit the loop as we found the prescription
-                // }
-                // }
-                record.updateStatus(status);
-                record.save();
-                break; // Exit the outer loop as well
-            }
-        }
-
-        // If a prescription was found and updated, save the records
-        if (found) {
-            System.out.println("Prescription status updated successfully.");
-        } else {
-            System.out.println("Prescription not found for the given prescription ID.");
+    for (Prescription record : records) {
+        if (record.getID().equals(prescriptionId)) {
+            record.updateStatus(status);
+            record.save();
+            found = true;
+            break; // Exit the loop as we found the prescription
         }
     }
+
+    if (found) {
+        System.out.println("Prescription status updated successfully.");
+    } else {
+        System.out.println("Prescription not found for the given prescription ID.");
+    }
+}
 
     public void displayMedicationInventory() {
         Inventory inventory = new Inventory();
