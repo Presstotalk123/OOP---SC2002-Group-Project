@@ -1,15 +1,13 @@
 package hms;
 
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public abstract class User {
   public String id;
@@ -21,17 +19,40 @@ public abstract class User {
   // prompt for data.
   // All subclasses should implement the scanner constructor pattern to create new
   // instance.
-  public User(Scanner scanner, String role) {
+  public User(Scanner scanner, String role) throws IOException {
     System.out.print("Enter a name for this new user: ");
     String name = scanner.nextLine();
-    System.out.print("Enter a password for this new user: ");
-    String password = scanner.nextLine();
+    while(true){
+      Console console = System.console();
+      if (console == null) {
+        throw new IOException("No console available");
+      }
+      char[] passwordArray = console.readPassword("Enter a password for this new user: ");
+      String password = new String(passwordArray);
+      char[] passwordArray2 = console.readPassword("Re-enter the password: ");
+      String password2 = new String(passwordArray2);
+    if(password.equals(password2)){
+      this.password = password;
+      break;
+    } else {
+      System.out.println("Passwords do not match. Please try again.");
+    }
+    }
 
     Random rand = new Random();
+    List<String> existingIds = Files.readAllLines(Paths.get("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/users.csv"))
+            .stream()
+            .map(line -> line.split(",")[0])
+            .collect(Collectors.toList());
 
-    int id = rand.nextInt(9000)+1000; // TODO: Add exisitng ID check
-
-    this.id = Integer.toString(id);
+    while (true) {
+      int id = rand.nextInt(9000) + 1000;
+      if (!existingIds.contains(Integer.toString(id))) {
+        System.out.println("Your ID is: " + id);
+        this.id = Integer.toString(id);
+        break;
+      }
+    }
     this.name = name;
     this.password = password;
     this.role = role;
@@ -99,5 +120,5 @@ public abstract class User {
   }
 
   // Return true to logout
-  public abstract boolean eventLoop(Scanner scanner);
+  public abstract boolean eventLoop(Scanner scanner) throws IOException;
 }
