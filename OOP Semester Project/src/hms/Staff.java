@@ -17,7 +17,7 @@ public abstract class Staff extends User {
 
     public String specialization="NA";
 
-    public Staff(Scanner scanner, String role) {
+    public Staff(Scanner scanner, String role) throws IOException {
         super(scanner, role);
         try {
             super.save();
