@@ -48,6 +48,11 @@ public class Pharmacist extends Staff {
             case 2:
                 System.out.print("Enter Prescription ID to update: ");
                 String prescriptionId = scanner.nextLine();
+                // Why are you asking for medication name?
+                // Also Prescriptions should be updated individually, not all at once.
+                // System.out.print("Enter Medication Name to update: "); // Ask for medication
+                // name
+                // String medicationName = scanner.nextLine(); // Collect medication name
                 try {
                     while (true) {
                         System.out.print("Enter new status (e.g., Pending/Dispensed): ");
@@ -85,35 +90,40 @@ public class Pharmacist extends Staff {
         return true;
     }
 
+
+
+
     public void updatePrescriptionStatus(String prescriptionId, PrescriptionStatus status) throws IOException {
-        // Fetch all prescription outcome records
-        List<Prescription> records = Prescription.getAll();
-        boolean found = false;
+    List<Prescription> records = Prescription.getAll();
+    Inventory inventory = new Inventory();
+    inventory.loadFromCSV(); // Load the current inventory
+    boolean found = false;
 
-        for (Prescription record : records) {
-            if (record.getID().equals(prescriptionId)) {
-                // Update the status of the prescribed medication
-                // List<Prescription> prescriptions = record.getPrescribedMedications();
-                // for (Prescription prescription : prescriptions) {
-                // if (prescription.getMedicationName().equals(medicationName)) {
-                // prescription.(status); // Update the status
-                // found = true;
-                // break; // Exit the loop as we found the prescription
-                // }
-                // }
-                record.updateStatus(status);
-                record.save();
-                break; // Exit the outer loop as well
+    for (Prescription record : records) {
+        if (record.getID().equals(prescriptionId)) {
+            record.updateStatus(status);
+            record.save();
+            found = true;
+            
+            // Update inventory if the status is set to dispensed
+            if (status == PrescriptionStatus.Dispensed) {
+                Medication med = inventory.getMedication(record.getMedicationName());
+                if (med != null) {
+                    int newStockLevel = med.getStockLevel() - 1; // Assume 1 unit is dispensed per prescription
+                    inventory.updateStockLevel(record.getMedicationName(), newStockLevel);
+                    inventory.saveToCSV("../data/inventory.csv");
+                }
             }
-        }
-
-        // If a prescription was found and updated, save the records
-        if (found) {
-            System.out.println("Prescription status updated successfully.");
-        } else {
-            System.out.println("Prescription not found for the given prescription ID.");
+            break; // Exit the loop as we found the prescription
         }
     }
+
+    if (found) {
+        System.out.println("Prescription status updated successfully.");
+    } else {
+        System.out.println("Prescription not found for the given prescription ID.");
+    }
+}
 
     public void displayMedicationInventory() {
         Inventory inventory = new Inventory();
