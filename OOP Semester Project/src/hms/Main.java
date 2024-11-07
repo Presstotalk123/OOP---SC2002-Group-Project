@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 class Main {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     System.out.println("Welcome to Hospital Management System!");
 
     Scanner scanner = new Scanner(System.in);
@@ -21,7 +21,7 @@ class Main {
     System.out.println("Bye!");
   }
 
-  public static boolean eventLoop(Scanner scanner) {
+  public static boolean eventLoop(Scanner scanner) throws IOException {
     // Load data on program startup
     List<User> users;
     try {
@@ -107,9 +107,11 @@ class Main {
                 System.out.println("Invalid input. Please enter a number from 1 to 4.");
                 break;
             }
-            System.out.println("Sign Up successful! Your Hospital ID is. Please log in now.");
+            System.out.println("Sign Up successful!Please log in now.");
           } catch (NoSuchElementException error) {
             System.out.println("Invalid input. Please enter a number from 1 to 4.");
+          } catch (IOException e) {
+              throw new RuntimeException(e);
           }
 
         }

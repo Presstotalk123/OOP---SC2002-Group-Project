@@ -14,7 +14,7 @@ public class Patient extends User {
     private MedicalRecordPatientView patientRecord;
 
     // Prompt for information about patient
-    public Patient(Scanner scanner) {
+    public Patient(Scanner scanner) throws IOException {
         super(scanner, "patient"); // Creates base User
         try {
             super.save();

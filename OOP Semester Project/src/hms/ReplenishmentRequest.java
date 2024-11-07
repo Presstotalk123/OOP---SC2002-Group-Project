@@ -8,7 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.File;
-
+import java.util.Random;
 public class ReplenishmentRequest {
     private String requestID;
     private String medicationName;
@@ -44,19 +44,7 @@ public class ReplenishmentRequest {
 
     public void saveToCSV(String filePath) {
     // Create a File object for the CSV file
-    File file = new File(filePath);
 
-    // Check if the file exists; if not, create it
-    try {
-        if (file.createNewFile()) {
-            System.out.println("CSV file created: " + file.getName());
-        } else {
-            System.out.println("CSV file already exists.");
-        }
-    } catch (IOException e) {
-        System.out.println("An error occurred while creating the file.");
-        e.printStackTrace();
-    }
 
     // Append the replenishment request to the CSV file
     try (FileWriter fileWriter = new FileWriter(filePath, true);
@@ -81,13 +69,26 @@ public class ReplenishmentRequest {
         List<ReplenishmentRequest> requests = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
+            boolean isFirstLine = true;
             while ((line = br.readLine()) != null) {
+                if (isFirstLine) {
+                    isFirstLine = false;
+                    continue; // Skip the header line
+                }
                 String[] values = line.split(",");
-                String requestID = values[0];
-                String medicationName = values[1];
-                int quantity = Integer.parseInt(values[2]);
-                String status = values[3];
-                requests.add(new ReplenishmentRequest(requestID, medicationName, quantity, status));
+                if (values.length == 4) {
+                    try {
+                        String requestID = values[0];
+                        String medicationName = values[1];
+                        int quantity = Integer.parseInt(values[2]);
+                        String status = values[3];
+                        requests.add(new ReplenishmentRequest(requestID, medicationName, quantity, status));
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid data format in replenishment requests file: " + line);
+                    }
+                } else {
+                    System.out.println("Invalid data format in replenishment requests file: " + line);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

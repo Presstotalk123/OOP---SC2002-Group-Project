@@ -1,0 +1,5 @@
+medicationName,stockLevel,lowStockAlertLevel
+Crocin,10000,2000
+LCZ,4000,500
+Panadol,2000,1000
+Dolo,4000,1500

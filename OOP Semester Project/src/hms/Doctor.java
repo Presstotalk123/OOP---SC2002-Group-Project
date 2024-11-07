@@ -19,7 +19,7 @@ public class Doctor extends Staff {
     // It doesn't add any functionality so idk what you're planning to do with it.
 
 
-    public Doctor(Scanner scanner) {
+    public Doctor(Scanner scanner) throws IOException {
         super(scanner, "doctor");
         try {
             super.save();

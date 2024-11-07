@@ -12,11 +12,12 @@ public class Administrator extends User {
     private List<Appointment> appointmentList;
     private Inventory inventory;
 
-    public Administrator(Scanner scanner) {
+    public Administrator(Scanner scanner) throws IOException {
         super(scanner, "administrator");
         try {
             super.save();
-        } catch (IOException error) {
+        }
+        catch (IOException error) {
             System.out.println("Unable to save user " + name + " due to IOException: " + error.getMessage());
         }
         staffList = new ArrayList<>();
@@ -37,7 +38,7 @@ public class Administrator extends User {
         loadInventoryData();
     }
 
-    public boolean eventLoop(Scanner scanner) {
+    public boolean eventLoop(Scanner scanner) throws IOException {
         int choice;
         System.out.println("Administrator Menu:");
         System.out.println("1. View Staff");
@@ -80,7 +81,7 @@ public class Administrator extends User {
         scanner.nextLine(); // Wait for user to press Enter
     }
 
-    private void manageStaff(Scanner scanner) {
+    private void manageStaff(Scanner scanner) throws IOException {
         int choice;
         do {
             System.out.println("Manage Staff Menu:");
@@ -114,7 +115,7 @@ public class Administrator extends User {
         } while (choice != 5);
     }
 
-    private void addStaff(Scanner scanner) {
+    private void addStaff(Scanner scanner) throws IOException {
         System.out.println("Enter Staff Role:");
         String role = scanner.nextLine();
 
@@ -334,15 +335,36 @@ public class Administrator extends User {
     }
 
     private void approveReplenishmentRequest(Scanner scanner) {
-        System.out.println("Enter Medicine Name to approve replenishment request:");
-        String name = scanner.nextLine();
-        Medication item = inventory.getMedication(name);
-        if (item != null) {
-            item.updateStockLevel(item.getStockLevel() + 10); // Increase stock by 10 for example
-            saveInventoryData(); // Save changes to the file
-            System.out.println("Replenishment request approved for " + name);
-        } else {
-            System.out.println("Inventory item not found.");
+        System.out.println("Enter Replenishment Request ID to approve:");
+        String requestID = scanner.nextLine();
+        List<ReplenishmentRequest> requests = ReplenishmentRequest.loadFromCSV("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/replenishment_requests.csv");
+
+        for (ReplenishmentRequest request : requests) {
+            if (request.getRequestID().equals(requestID)) {
+                Medication item = inventory.getMedication(request.getMedicationName());
+                if (item != null) {
+                    item.updateStockLevel(item.getStockLevel() + request.getQuantity());
+                    request.setStatus("Approved");
+                    saveInventoryData(); // Save changes to the inventory file
+                    saveReplenishmentRequests(requests); // Save changes to the replenishment requests file
+                    System.out.println("Replenishment request approved for " + request.getMedicationName());
+                } else {
+                    System.out.println("Inventory item not found.");
+                }
+                return;
+            }
+        }
+        System.out.println("Replenishment request not found.");
+    }
+
+    private void saveReplenishmentRequests(List<ReplenishmentRequest> requests) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/replenishment_requests.csv"))) {
+            writer.println("requestID,medicationName,quantity,status");
+            for (ReplenishmentRequest request : requests) {
+                writer.printf("%s,%s,%d,%s%n", request.getRequestID(), request.getMedicationName(), request.getQuantity(), request.getStatus());
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving replenishment requests: " + e.getMessage());
         }
     }
 
@@ -379,15 +401,29 @@ public class Administrator extends User {
     private void loadInventoryData() {
         try (BufferedReader br = new BufferedReader(new FileReader("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/inventory.csv"))) {
             String line;
+            boolean isFirstLine = true;
             while ((line = br.readLine()) != null) {
+                if (isFirstLine) {
+                    isFirstLine = false;
+                    continue; // Skip the header line
+                }
                 String[] data = line.split(",");
-                inventory.addMedication(new Medication(data[0], Integer.parseInt(data[1]), Integer.parseInt(data[2])));
+                if (data.length == 3) {
+                    try {
+                        int stockLevel = Integer.parseInt(data[1]);
+                        int lowStockAlertLevel = Integer.parseInt(data[2]);
+                        inventory.addMedication(new Medication(data[0], stockLevel, lowStockAlertLevel));
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid data format in inventory file: " + line);
+                    }
+                } else {
+                    System.out.println("Invalid data format in inventory file: " + line);
+                }
             }
         } catch (IOException e) {
             System.out.println("Error loading inventory data: " + e.getMessage());
         }
     }
-
     private void saveStaffData() {
         for (Staff staff : staffList) {
             try {
@@ -409,10 +445,14 @@ public class Administrator extends User {
     }
 
     private void saveInventoryData() {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("inventory_data.csv"))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/inventory.csv"))) {
+            // Write the header
+            bw.write("medicationName,stockLevel,lowStockAlertLevel");
+            bw.newLine();
+
+            // Write the medication data
             for (Medication item : inventory.getMedications()) {
-                bw.write(item.getMedicationName() + "," + item.getStockLevel() + "," +
-                        item.getLowStockAlertLevel());
+                bw.write(item.getMedicationName() + "," + item.getStockLevel() + "," + item.getLowStockAlertLevel());
                 bw.newLine();
             }
         } catch (IOException e) {

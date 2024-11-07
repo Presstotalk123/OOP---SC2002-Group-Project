@@ -34,6 +34,7 @@ public class Inventory {
     }
 
     public Medication getMedication(String medicationName) {
+        loadFromCSV();
         for (Medication med : medications) {
             if (med.getMedicationName().equals(medicationName)) {
                 return med;
@@ -68,16 +69,30 @@ public class Inventory {
     }
 
 
+
     public void loadFromCSV() {
         medications.clear();
         try (BufferedReader br = new BufferedReader(new FileReader("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/inventory.csv"))) {
             String line;
+            boolean isFirstLine = true;
             while ((line = br.readLine()) != null) {
+                if (isFirstLine) {
+                    isFirstLine = false;
+                    continue; // Skip the header line
+                }
                 String[] values = line.split(",");
-                String medicationName = values[0];
-                int stockLevel = Integer.parseInt(values[1]);
-                int lowStockAlertLevel = Integer.parseInt(values[2]);
-                medications.add(new Medication(medicationName, stockLevel, lowStockAlertLevel));
+                if (values.length == 3) {
+                    try {
+                        String medicationName = values[0];
+                        int stockLevel = Integer.parseInt(values[1]);
+                        int lowStockAlertLevel = Integer.parseInt(values[2]);
+                        medications.add(new Medication(medicationName, stockLevel, lowStockAlertLevel));
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid data format in inventory file: " + line);
+                    }
+                } else {
+                    System.out.println("Invalid data format in inventory file: " + line);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

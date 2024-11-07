@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class Pharmacist extends Staff {
 
-    public Pharmacist(Scanner scanner) {
+    public Pharmacist(Scanner scanner) throws IOException {
         super(scanner, "pharmacist");
         try {
             super.save();
@@ -137,7 +137,7 @@ public class Pharmacist extends Staff {
         ReplenishmentRequest request = new ReplenishmentRequest(
                 generateRequestID(), medicationName, quantity, "Pending");
         // Submit the request (this will also create the file if it doesn't exist)
-        request.saveToCSV("replenishment_requests.csv");
+        request.saveToCSV("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/replenishment_requests.csv");
     }
 
     private String generateRequestID() {
