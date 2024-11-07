@@ -98,12 +98,24 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
 
     }
 
-    public static MedicalRecordPatientView getRecord(Patient caller, String patientId) throws IOException {
-        return new MedicalRecords(patientId);
+    public static MedicalRecordPatientView getRecord(Patient caller, String patientId) {
+        try {
+            return new MedicalRecords(patientId);
+        } catch (IOException e) {
+            System.out.println("Error loading medical record for patient with ID: " + patientId);
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public static MedicalRecordDoctorView getRecord(Doctor caller, String patientId) throws IOException {
-        return new MedicalRecords(patientId);
+    public static MedicalRecordDoctorView getRecord(Doctor caller, String patientId) {
+        try {
+            return new MedicalRecords(patientId);
+        } catch (IOException e) {
+            System.out.println("Error loading medical record for patient with ID: " + patientId);
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private static String[] loadMedicalRecordFromFile(String id) throws IOException {
