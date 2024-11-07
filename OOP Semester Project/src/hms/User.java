@@ -23,14 +23,10 @@ public abstract class User {
     System.out.print("Enter a name for this new user: ");
     String name = scanner.nextLine();
     while(true){
-      Console console = System.console();
-      if (console == null) {
-        throw new IOException("No console available");
-      }
-      char[] passwordArray = console.readPassword("Enter a password for this new user: ");
-      String password = new String(passwordArray);
-      char[] passwordArray2 = console.readPassword("Re-enter the password: ");
-      String password2 = new String(passwordArray2);
+    System.out.print("Enter a password for this new user: ");
+    String password = scanner.nextLine();
+    System.out.print("Re-enter the password: ");
+    String password2 = scanner.nextLine();
     if(password.equals(password2)){
       this.password = password;
       break;
