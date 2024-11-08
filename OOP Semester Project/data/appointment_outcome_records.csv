@@ -1,6 +1,2 @@
 appointmentID,dateOfAppointment,serviceType,prescribedMedications,consultationNotes
-6711,2024-12-01,cardiologist,7358;4089,Patient is fine
-6711,2024-12-01,cardiologist,7358;4089,Patient is fine
-6711,2024-12-01,radiology,5791;1795,NA
-6711,2024-12-01,radiology,5791;1795,NA
 6711,2024-12-01,ENT,7868,take Rest
