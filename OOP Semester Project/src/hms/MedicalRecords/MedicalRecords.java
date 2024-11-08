@@ -105,11 +105,7 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
         this.bloodType = record[6];
         this.allergies = new ArrayList<>(); // Initialize allergy list
 
-        // Parse allergies from the record (assuming allergies are stored in record[7] as a comma-separated string)
-        String[] allergyArray = record[7].split(",");
-        for (String allergy : allergyArray) {
-            this.allergies.add(allergy.trim());
-        }
+        
         // TODO: Add retrieval of diagnosis, prescriptions and treatments
 
     }
@@ -206,10 +202,10 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
         for (int i = 0; i < lines.size(); i++) {
             String[] patient = lines.get(i).split(",");
 
-            if (patient.length == 7 && patient[0].equals(this.id)) {
+            if (patient.length == 8 && patient[0].equals(this.id)) {
                 String newEntry = this.id + "," + this.name + "," + this.dateOfBirth + ","
                         + this.gender.toString().toLowerCase() + "," + this.phoneNumber + "," + this.emailAddress + ","
-                        + this.bloodType + "," + String.join(";", this.allergies) + "\n";
+                        + this.bloodType + "," + String.join(",", this.allergies) + "\n";
                 output.write(newEntry.getBytes());
             } else {
                 String line = lines.get(i) + "\n";
