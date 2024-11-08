@@ -3,13 +3,12 @@ package hms;
 
 import hms.Appointments.Appointment;
 import hms.Appointments.AppointmentStatus;
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.*;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Doctor extends Staff {
@@ -31,8 +30,8 @@ public class Doctor extends Staff {
     @Override
     public void save() throws IOException {
         // staff.csv: id,gender,age,role,phoneNumber,email,specialization
-        List<String> lines = Files.readAllLines(Paths.get("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/staff.csv"));
-        FileOutputStream output = new FileOutputStream("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/staff.csv");
+        List<String> lines = Files.readAllLines(Paths.get("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\staff.csv"));
+        FileOutputStream output = new FileOutputStream("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\staff.csv");
 
         boolean isEntryFound = false;
         for (int i = 0; i < lines.size(); i++) {
@@ -71,7 +70,9 @@ public class Doctor extends Staff {
                 4. Set Availability for Appointments
                 5. Accept or Decline Appointment Requests
                 6. Record Appointment Outcome\s
-                7. Log Out
+                7. Cancel Appointments
+                8. Clear Appointments
+                9. Log Out
                 Enter your choice:""");
 
         int choice = scanner.nextInt();
@@ -109,26 +110,13 @@ public class Doctor extends Staff {
                 }
                 break;
             case 3:
-                List<Appointment> appointments = viewAppointments();
-                for (Appointment appointment : appointments) {
-                    System.out.println(appointment);
-                }
+                viewPersonalSchedule();
                 break;
             case 4:
                 setAvailabilityForAppointments();
                 break;
             case 5:
-                System.out.print("Enter the appointment ID: ");
-                String appointmentID = scanner.nextLine();
-                System.out.print("Accept (A) or Decline (D) the appointment: ");
-                String action = scanner.nextLine();
-                if (action.equalsIgnoreCase("A")) {
-                    accept(appointmentID);
-                } else if (action.equalsIgnoreCase("D")) {
-                    decline(appointmentID);
-                } else {
-                    System.out.println("Invalid action. Please enter 'A' to accept or 'D' to decline.");
-                }
+                viewPendingRequests(scanner);  // Interactive function for pending requests
                 break;
             case 6:
                 System.out.print("Enter the appointment ID: ");
@@ -150,6 +138,12 @@ public class Doctor extends Staff {
                 recordAppointmentOutcome(appointmentID2, new Date(Long.parseLong(dateOfAppointment)), serviceType, prescriptions, consultationNotes);
                 break;
             case 7:
+                cancelAnyAppointment(scanner); // New case to cancel appointments
+                break;
+            case 8:
+                clearAppointments();
+                break;
+            case 9:
                 return false;
             default:
                 System.out.println("Invalid choice. Please enter a number from 1 to 7.");
@@ -169,78 +163,222 @@ public class Doctor extends Staff {
         List<Appointment> appointments = new ArrayList<>();
         String line;
         String separator = ",";
-
-        try (BufferedReader br = new BufferedReader(new FileReader("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/appointments.csv"))) {
-            // Skip header row
-            br.readLine();
-
-            // Process each line in the CSV file
+    
+        try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointments.csv"))) {
+            br.readLine(); // Skip header row
+    
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(separator);
-                if (values[0].equals(this.id)) {
-                    // Ensure values array has the correct length before accessing specific indices
-                    if (values.length >= 6) {
-                        String status = values[4];
-                        Optional<AppointmentStatus> apptStatus;
-                        if (status.toLowerCase().equals("confirmed"))
-                            apptStatus = Optional.of(AppointmentStatus.Confirmed);
-                        else if (status.toLowerCase().equals("cancelled"))
-                            apptStatus = Optional.of(AppointmentStatus.Cancelled);
-                        else if (status.toLowerCase().equals("completed"))
-                            apptStatus = Optional.of(AppointmentStatus.Completed);
-                        else
-                            apptStatus = Optional.empty();
-
-                        appointments.add(
-                                new Appointment(
-                                        values[0],
-                                        Optional.ofNullable(values[1].equals("") ? null : values[1]),
-                                        values[2],
-                                        apptStatus,
-                                        LocalDateTime.parse(values[5]),
-                                        Optional.ofNullable(values[3].equals("") ? null : values[3])));
-                    }
+                if (values.length >= 6 && values[2].equals(this.id)) {
+                    String status = values[4].toLowerCase(); // Case-insensitive comparison
+    
+                    Optional<AppointmentStatus> apptStatus = switch (status) {
+                        case "confirmed" -> Optional.of(AppointmentStatus.confirmed);
+                        case "cancelled" -> Optional.of(AppointmentStatus.cancelled);
+                        case "completed" -> Optional.of(AppointmentStatus.completed);
+                        case "pending" -> Optional.of(AppointmentStatus.pending);
+                        default -> Optional.empty();
+                    };
+    
+                    appointments.add(new Appointment(
+                            values[0],
+                            Optional.ofNullable(values[1].isEmpty() ? null : values[1]),
+                            values[2],
+                            apptStatus,
+                            LocalDateTime.parse(values[5]),
+                            Optional.ofNullable(values[3].isEmpty() ? null : values[3])
+                    ));
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    
         return appointments;
     }
+    
+    private void viewPendingRequests(Scanner scanner) {
+        try {
+            System.out.println("\nPending Appointment Requests:\n");
+            List<Appointment> appointments = viewAppointments();
+            boolean foundPending = false;
+    
+            for (Appointment appt : appointments) {
+                if (appt.getStatus().isPresent() && appt.getStatus().get() == AppointmentStatus.pending) {
+                    System.out.printf("Appointment ID: %s | Patient ID: %s | Date: %s | Status: PENDING%n",
+                            appt.getId(),
+                            appt.getPatientId().orElse("Unassigned"),
+                            appt.getDateTime());
+                    foundPending = true;
+                }
+            }
+    
+            if (!foundPending) {
+                System.out.println("No pending appointment requests.\n");
+                return;  // Exit if no pending requests
+            }
+    
+            System.out.println("\nSelect an appointment to manage:");
+            System.out.print("Enter Appointment ID or type 'back' to return: ");
+            String selectedAppointmentId = scanner.nextLine();
+    
+            if (selectedAppointmentId.equalsIgnoreCase("back")) {
+                return;  // Exit if user wants to go back
+            }
+    
+            // Search for the selected appointment
+            Appointment selectedAppt = null;
+            for (Appointment appt : appointments) {
+                if (appt.getId().equals(selectedAppointmentId) && appt.getStatus().isPresent() &&
+                        appt.getStatus().get() == AppointmentStatus.pending) {
+                    selectedAppt = appt;
+                    break;
+                }
+            }
+    
+            if (selectedAppt == null) {
+                System.out.println("Invalid Appointment ID or the appointment is not pending.");
+                return;
+            }
+    
+            // Provide action choices
+            System.out.print("""
+                    What would you like to do with this appointment?
+                    1. Accept
+                    2. Decline
+                    Enter your choice: """);
+    
+            int actionChoice = scanner.nextInt();
+            scanner.nextLine();  // Consume newline
+    
+            switch (actionChoice) {
+                case 1 -> {
+                    accept(selectedAppointmentId);
+                    System.out.println("Appointment accepted successfully.\n");
+                }
+                case 2 -> {
+                    decline(selectedAppointmentId);
+                    System.out.println("Appointment declined successfully.\n");
+                }
+                
+                default -> System.out.println("Invalid choice. Returning to menu.\n");
+            }
+    
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input. Please enter a valid number.\n");
+            scanner.nextLine(); // Clear the invalid input
+        }
+    }
+    
 
     public void accept(String appointmentID) {
-        List<Appointment> appointments = viewAppointments();
-        for (Appointment appointment : appointments) {
-            if (appointment.getId().equals(appointmentID)) {
-                appointment.setStatus(Optional.of(AppointmentStatus.Confirmed));
-                try {
+        try {
+            List<Appointment> appointments = viewAppointments();
+            boolean updated = false;
+            
+            for (Appointment appointment : appointments) {
+                if (appointment.getId().equals(appointmentID)) {
+                    appointment.setStatus(Optional.of(AppointmentStatus.confirmed));
                     appointment.save();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    updated = true;
+                    System.out.printf("Appointment ID %s has been accepted and set to CONFIRMED.%n", appointmentID);
+                    break;
                 }
-                break;
             }
+    
+            if (!updated) {
+                System.out.printf("Appointment ID %s not found or already processed.%n", appointmentID);
+            }
+        } catch (IOException e) {
+            System.out.println("Error while accepting the appointment: " + e.getMessage());
         }
     }
+    
     public void decline(String appointmentID) {
+        try {
+            List<Appointment> appointments = viewAppointments();
+            boolean updated = false;
+    
+            for (Appointment appointment : appointments) {
+                if (appointment.getId().equals(appointmentID)) {
+                    appointment.setStatus(Optional.of(AppointmentStatus.cancelled));
+                    appointment.save();
+                    updated = true;
+                    System.out.printf("Appointment ID %s has been declined and set to CANCELLED.%n", appointmentID);
+                    break;
+                }
+            }
+    
+            if (!updated) {
+                System.out.printf("Appointment ID %s not found or already processed.%n", appointmentID);
+            }
+        } catch (IOException e) {
+            System.out.println("Error while declining the appointment: " + e.getMessage());
+        }
+    }
+
+    private void cancelAnyAppointment(Scanner scanner) {
         List<Appointment> appointments = viewAppointments();
+    
+        System.out.println("\nAll Appointments:\n");
+    
+        for (Appointment appt : appointments) {
+            System.out.printf("Appointment ID: %s | Patient ID: %s | Date: %s | Status: %s%n",
+                    appt.getId(),
+                    appt.getPatientId().orElse("Unassigned"),
+                    appt.getDateTime(),
+                    appt.getStatus().map(Enum::name).orElse("None"));
+        }
+    
+        System.out.print("\nEnter Appointment ID to cancel or type 'back' to return: ");
+        String selectedAppointmentId = scanner.nextLine();
+    
+        if (selectedAppointmentId.equalsIgnoreCase("back")) {
+            return;
+        }
+    
+        Appointment selectedAppt = appointments.stream()
+                .filter(appt -> appt.getId().equals(selectedAppointmentId))
+                .findFirst()
+                .orElse(null);
+    
+        if (selectedAppt == null) {
+            System.out.println("Invalid Appointment ID.");
+            return;
+        }
+    
+        cancel(selectedAppointmentId);
+        System.out.println("Appointment cancelled successfully.\n");
+    }
+    
+
+    public void cancel(String appointmentID) {
+    try {
+        List<Appointment> appointments = viewAppointments();
+        boolean updated = false;
+
         for (Appointment appointment : appointments) {
             if (appointment.getId().equals(appointmentID)) {
-                appointment.setStatus(Optional.of(AppointmentStatus.Cancelled));
-                try {
-                    appointment.save();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                appointment.setStatus(Optional.of(AppointmentStatus.cancelled));
+                appointment.save();
+                updated = true;
+                System.out.printf("Appointment ID %s has been cancelled and set to CANCELLED.%n", appointmentID);
                 break;
             }
         }
+
+        if (!updated) {
+            System.out.printf("Appointment ID %s not found or already processed.%n", appointmentID);
+        }
+    } catch (IOException e) {
+        System.out.println("Error while cancelling the appointment: " + e.getMessage());
     }
+}
     public void complete(String appointmentID) {
         List<Appointment> appointments = viewAppointments();
         for (Appointment appointment : appointments) {
             if (appointment.getId().equals(appointmentID)) {
-                appointment.setStatus(Optional.of(AppointmentStatus.Completed));
+                appointment.setStatus(Optional.of(AppointmentStatus.completed));
                 try {
                     appointment.save();
                 } catch (IOException e) {
@@ -254,7 +392,7 @@ public class Doctor extends Staff {
         AppointmentOutcomeRecord outcomeRecord = new AppointmentOutcomeRecord(appointmentID, dateOfAppointment, serviceType, prescribedMedications, consultationNotes);
 
         // Save the outcome record to the CSV file
-        try (PrintWriter pw = new PrintWriter(new FileWriter("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/appointment_outcome_records.csv", true))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointment_outcome_records.csv", true))) {
             StringBuilder sb = new StringBuilder();
             sb.append(outcomeRecord.getAppointmentID()).append(",");
             sb.append(outcomeRecord.getDateOfAppointment().getTime()).append(",");
@@ -271,7 +409,7 @@ public class Doctor extends Staff {
         String line;
         String separator = ",";
 
-        try (BufferedReader br = new BufferedReader(new FileReader("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/Patient.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\Patient.csv"))) {
             // Skip header row
             br.readLine();
 
@@ -286,12 +424,38 @@ public class Doctor extends Staff {
 
         return medicalRecords;
     }
+    public void clearAppointments() {
+        String filePath = "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointments.csv";
+    
+        try {
+            // Read all lines, retaining only the header
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+            if (lines.isEmpty()) {
+                System.out.println("No data found in the appointments file.");
+                return;
+            }
+    
+            // Get the header (assuming the first line is the header)
+            String header = lines.get(0);
+    
+            // Overwrite the file with only the header
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+                writer.write(header);
+                writer.newLine();
+            }
+    
+            System.out.println("All appointments have been cleared successfully, retaining the header.");
+        } catch (IOException e) {
+            System.out.println("Error clearing appointments: " + e.getMessage());
+        }
+    }
+    
     public void updateMedicalRecord(String patientId, String[] updatedRecord) throws IOException {
         List<String[]> medicalRecords = new ArrayList<>();
         String line;
         String separator = ",";
 
-        try (BufferedReader br = new BufferedReader(new FileReader("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/Patient.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\Patient.csv"))) {
             // Read all lines and store them in a list
             while ((line = br.readLine()) != null) {
                 String[] record = line.split(separator);
@@ -304,15 +468,58 @@ public class Doctor extends Staff {
         }
 
         // Write the updated records back to the CSV file
-        try (PrintWriter pw = new PrintWriter(new FileWriter("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/Patient.csv"))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\Patient.csv"))) {
             for (String[] record : medicalRecords) {
                 pw.println(String.join(separator, record));
             }
         }
     }
     private void viewPersonalSchedule() {
-        System.out.println("Viewing personal schedule... (placeholder)");
+        String filePath = "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointments.csv";
+        List<Appointment> personalSchedule = new ArrayList<>();
+    
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            br.readLine(); // Skip the header row
+    
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                if (values.length >= 6 && values[2].equals(this.id) && values[4].equalsIgnoreCase("Confirmed")) {
+                    String appointmentID = values[0];
+                    String patientID = values[1].isEmpty() ? "Unassigned" : values[1];
+                    LocalDateTime dateTime = LocalDateTime.parse(values[5], DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+    
+                    personalSchedule.add(new Appointment(
+                            appointmentID,
+                            Optional.ofNullable(patientID.equals("Unassigned") ? null : patientID),
+                            this.id,
+                            Optional.of(AppointmentStatus.confirmed),
+                            dateTime,
+                            Optional.empty()
+                    ));
+                }
+            }
+    
+            // Sort appointments by date/time for display
+            personalSchedule.sort(Comparator.comparing(Appointment::getDateTime));
+    
+            // Display the personal schedule
+            System.out.println("\nYour Personal Schedule (Confirmed Appointments):");
+            if (personalSchedule.isEmpty()) {
+                System.out.println("No confirmed appointments scheduled.");
+            } else {
+                for (Appointment appointment : personalSchedule) {
+                    System.out.printf("Appointment ID: %s | Patient ID: %s | Date: %s%n",
+                            appointment.getId(),
+                            appointment.getPatientId().orElse("Unassigned"),
+                            appointment.getDateTime());
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading personal schedule: " + e.getMessage());
+        }
     }
+    
 
     // Placeholder method for "Set Availability for Appointments"
     private void setAvailabilityForAppointments() {
