@@ -26,6 +26,7 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
     private ArrayList<String> prescriptions;
     private ArrayList<String> treatments;
     private String bloodType; // final as this field should not be updated.
+    private  ArrayList<String> allergies;
 
     public MedicalRecords(Scanner scanner, String id, String name) {
         while (true) {
@@ -80,6 +81,15 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
 
         this.bloodType = bloodType;
 
+        this.allergies = new ArrayList<>(); // Initialize allergy list
+
+        System.out.print("Enter any allergies for this user (separate by commas if multiple): ");
+        String[] allergyArray = scanner.nextLine().split(",");
+        for (String allergy : allergyArray) {
+            this.allergies.add(allergy.trim());
+        }
+        
+
     }
 
     private MedicalRecords(String id) throws IOException {
@@ -93,7 +103,13 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
         this.phoneNumber = record[4];
         this.emailAddress = record[5];
         this.bloodType = record[6];
+        this.allergies = new ArrayList<>(); // Initialize allergy list
 
+        // Parse allergies from the record (assuming allergies are stored in record[7] as a comma-separated string)
+        String[] allergyArray = record[7].split(",");
+        for (String allergy : allergyArray) {
+            this.allergies.add(allergy.trim());
+        }
         // TODO: Add retrieval of diagnosis, prescriptions and treatments
 
     }
@@ -160,6 +176,16 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
         this.treatments.add(treatmentPlan);
     }
 
+    // Getter for allergy field
+    public List<String> getAllergies() {
+        return allergies;
+    }
+
+    // Add a new allergy
+    public void addAllergy(String allergy) {
+        this.allergies.add(allergy);
+    }
+
     public String toString() {
         return new StringBuilder()
                 .append("Patient ID: " + this.id + "\n")
@@ -169,6 +195,7 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
                 .append("Phone Number: " + this.phoneNumber + "\n")
                 .append("Email Address: " + this.emailAddress + "\n")
                 .append("Blood Type: " + this.bloodType + "\n")
+                .append("Allergies: " + String.join(", ", this.allergies) + "\n") // Added allergy field
                 .toString();
     }
 
@@ -182,7 +209,7 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
             if (patient.length == 7 && patient[0].equals(this.id)) {
                 String newEntry = this.id + "," + this.name + "," + this.dateOfBirth + ","
                         + this.gender.toString().toLowerCase() + "," + this.phoneNumber + "," + this.emailAddress + ","
-                        + this.bloodType + "\n";
+                        + this.bloodType + "," + String.join(";", this.allergies) + "\n";
                 output.write(newEntry.getBytes());
             } else {
                 String line = lines.get(i) + "\n";
