@@ -1,4 +1,4 @@
-package hms;
+fpackage hms;
 
 
 import hms.Appointments.Appointment;
@@ -139,6 +139,37 @@ public class Doctor extends Staff {
                 String serviceType = scanner.nextLine();
                 System.out.print("Enter the prescribed medications (separated by commas): ");
                 String[] prescribedMedications = scanner.nextLine().split(",");
+
+                
+                //code to retreive the allergies in medicalRecord with the patientid associated - do not know how
+                ArrayList<String> allergies = getAllergies(appointmentID);// this have to see how to retreive
+                boolean proceedWithPrescriptions = false;
+                while (!proceedWithPrescriptions) {
+                
+                List<String> prescribedList = Arrays.asList(prescribedMedications);
+                List<String> commonAllergens = new ArrayList<>(allergies);
+                commonAllergens.retainAll(prescribedList);
+
+                if (!commonAllergens.isEmpty()) {
+                // Step 4: Display warning and ask for doctor confirmation
+                System.out.println("Warning! Patient is allergic to: " + String.join(", ", commonAllergens) + ". Override? Y / N");
+                String response = scanner.nextLine().trim().toUpperCase();
+
+                if (response.equals("Y")) {
+                    proceedWithPrescriptions = true; // Continue with the current prescription list
+                } else {
+                    Prompt to re-enter prescriptions
+                    System.out.println("Re-enter all prescribed medications. Make sure medications are compatible with each other.");
+                    System.out.print("Enter the prescribed medications (separated by commas): ");
+                    prescribedMedications = scanner.nextLine().split(",");
+                }
+            } else {
+                // No allergy conflict
+                System.out.println("No allergy conflicts with prescribed medications.");
+                proceedWithPrescriptions = true;
+            }
+        }
+                
                 List<Prescription> prescriptions = new ArrayList<>();
                 for (String medication : prescribedMedications) {
                     int prescriptionID = new Random().nextInt(9000) + 1000;
