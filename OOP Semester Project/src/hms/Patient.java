@@ -1,13 +1,13 @@
 package hms;
+import hms.Appointments.AppointmentPatientView;
+import hms.Appointments.AppointmentStatus;
+import hms.MedicalRecords.MedicalRecordPatientView;
+import hms.MedicalRecords.MedicalRecords;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
-import hms.MedicalRecords.MedicalRecords;
-import hms.Appointments.AppointmentPatientView;
-import hms.Appointments.AppointmentStatus;
-import hms.MedicalRecords.MedicalRecordPatientView;
 
 public class Patient extends User {
     // Store MedicalRecord as a PatientView so only Patient methods are exposed.
@@ -16,19 +16,35 @@ public class Patient extends User {
     // Prompt for information about patient
     public Patient(Scanner scanner) throws IOException {
         super(scanner, "patient"); // Creates base User
+        
         try {
-            super.save();
+            super.save(); // Save to users.csv
         } catch (IOException error) {
             System.out.println("Unable to save user " + name + " due to IOException: " + error.getMessage());
         }
-        this.patientRecord = new MedicalRecords(scanner, super.id, super.name); // Create Patient Medical Record
+        
+        this.patientRecord = new MedicalRecords(scanner, this.id, this.name); // Create Patient Medical Record
+        
+        // Save the new MedicalRecord to Patient.csv immediately
+        try {
+            this.patientRecord.saveToFile();
+            System.out.println("Medical Record for Patient saved successfully.");
+        } catch (IOException error) {
+            System.out.println("Error saving Medical Record: " + error.getMessage());
+        }
     }
-
+    
     public Patient(String id, String name, String password) throws IOException {
         super(id, name, password, "patient");
-        MedicalRecordPatientView record = MedicalRecords.getRecord(this, id);
-        this.patientRecord = record;
+    
+        this.patientRecord = MedicalRecords.getRecord(this, id);
+        
+        if (this.patientRecord == null) {
+            this.patientRecord = new MedicalRecords(new Scanner(System.in), id, name); 
+            this.patientRecord.saveToFile(); // Save new MedicalRecords if not found
+        }
     }
+    
     
     public boolean eventLoop(Scanner scanner) {
         System.out.print("""
