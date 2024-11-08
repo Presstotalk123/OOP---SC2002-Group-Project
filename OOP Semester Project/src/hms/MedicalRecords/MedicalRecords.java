@@ -1,5 +1,8 @@
 package hms.MedicalRecords;
 
+import hms.Doctor;
+import hms.Gender;
+import hms.Patient;
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -9,10 +12,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
-import hms.Doctor;
-import hms.Gender;
-import hms.Patient;
 
 public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDoctorView {
 
@@ -28,6 +27,8 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
     private String bloodType; // final as this field should not be updated.
 
     public MedicalRecords(Scanner scanner, String id, String name) {
+        this.id=id;
+        this.name=name;
         while (true) {
             System.out.print("Enter the Date of Birth for this user in the format (DD-MM-YYYY): ");
             String dateOfBirth = scanner.nextLine();
@@ -119,7 +120,7 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
     }
 
     private static String[] loadMedicalRecordFromFile(String id) throws IOException {
-        BufferedReader file = new BufferedReader(new FileReader("OOP Semester Project/data/Patient.csv"));
+        BufferedReader file = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\Patient.csv"));
 
         String nextLine = file.readLine();
         while ((nextLine = file.readLine()) != null) {
@@ -185,25 +186,37 @@ public class MedicalRecords implements MedicalRecordPatientView, MedicalRecordDo
     }
 
     public void saveToFile() throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/Patient.csv"));
-        FileOutputStream output = new FileOutputStream("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/Patient.csv");
-
+        List<String> lines = Files.readAllLines(Paths.get("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\Patient.csv"));
+        FileOutputStream output = new FileOutputStream("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\Patient.csv");
+    
+        boolean isEntryFound = false;
+        
         for (int i = 0; i < lines.size(); i++) {
             String[] patient = lines.get(i).split(",");
-
+            
             if (patient.length == 7 && patient[0].equals(this.id)) {
-                String newEntry = this.id + "," + this.name + "," + this.dateOfBirth + ","
-                        + this.gender.toString().toLowerCase() + "," + this.phoneNumber + "," + this.emailAddress + ","
-                        + this.bloodType + "\n";
+                String newEntry = this.id + "," + this.name + "," + this.dateOfBirth + "," +
+                                  this.gender.toString().toLowerCase() + "," + this.phoneNumber + "," +
+                                  this.emailAddress + "," + this.bloodType + "\n";
                 output.write(newEntry.getBytes());
+                isEntryFound = true;
             } else {
                 String line = lines.get(i) + "\n";
                 output.write(line.getBytes());
             }
         }
-
+    
+        // If the patient is not found, append a new entry
+        if (!isEntryFound) {
+            String newEntry = this.id + "," + this.name + "," + this.dateOfBirth + "," +
+                              this.gender.toString().toLowerCase() + "," + this.phoneNumber + "," +
+                              this.emailAddress + "," + this.bloodType + "\n";
+            output.write(newEntry.getBytes());
+        }
+    
         output.close();
     }
+    
 }
 
 // I use interfaces to limit what different users can do
