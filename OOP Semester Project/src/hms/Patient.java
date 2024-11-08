@@ -1,4 +1,5 @@
 package hms;
+import hms.Appointments.Appointment;
 import hms.Appointments.AppointmentPatientView;
 import hms.Appointments.AppointmentStatus;
 import hms.MedicalRecords.MedicalRecordPatientView;
@@ -164,45 +165,57 @@ public class Patient extends User {
         }
     }
     private void scheduleAppointment(Scanner scanner) {
-        try {
-            List<AppointmentPatientView> appts = AppointmentPatientView.loadAllAppointments();
-            System.out.println("Here are all the available appointments:");
-            Iterator<AppointmentPatientView> it = appts.iterator();
-            boolean foundAnyAppts = false;
-            while (it.hasNext()) {
-                AppointmentPatientView appt = it.next();
-                if (appt.isBookable()) {
-                    System.out.println("(" + appt.getId() + ") - " + appt.getDateTime().toString());
-                    foundAnyAppts = true;
-                }
+    try {
+        List<AppointmentPatientView> appts = AppointmentPatientView.loadAllAppointments();
+        System.out.println("Here are all the available appointments:");
+        Iterator<AppointmentPatientView> it = appts.iterator();
+        boolean foundAnyAppts = false;
+        
+        while (it.hasNext()) {
+            AppointmentPatientView appt = it.next();
+            if (appt.isBookable()) {
+                System.out.println("(" + appt.getId() + ") - " + appt.getDateTime().toString());
+                foundAnyAppts = true;
             }
-            if (!foundAnyAppts) {
-                System.out.println("No more available appointments!\n");
-                return;
-            }
-            System.out.print("Enter the ID of the appointment you want to book: ");
-            String selectedAppointmentId = scanner.nextLine();
-            boolean wasBookingSuccessful = false;
-            it = appts.iterator();
-            while (it.hasNext()) {
-                AppointmentPatientView appt = it.next();
-                if (appt.getId().equals(selectedAppointmentId)) {
-                    appt.schedule(this.id);
-                    appt.save();
-                    wasBookingSuccessful = true;
-                    break;
-                }
-            }
-            if (!wasBookingSuccessful) {
-                System.out.println("Invalid Appointment ID! Returning to main menu...");
-            } else {
-                System.out.println("Booking was successful!");
-            }
-        } catch (IOException error) {
-            System.out.println("Error occurred scheduling new appointment: ");
-            error.printStackTrace();
         }
+        
+        if (!foundAnyAppts) {
+            System.out.println("No more available appointments!\n");
+            return;
+        }
+        
+        System.out.print("Enter the ID of the appointment you want to book: ");
+        String selectedAppointmentId = scanner.nextLine();
+        boolean wasBookingSuccessful = false;
+        
+        it = appts.iterator();
+        while (it.hasNext()) {
+            AppointmentPatientView appt = it.next();
+            if (appt.getId().equals(selectedAppointmentId)) {
+                // Set patient ID and status to Pending
+                appt.schedule(this.id);  // Assign patient ID
+                if (appt instanceof Appointment) {  // Ensure it's a modifiable instance
+                    ((Appointment) appt).setStatus(Optional.of(AppointmentStatus.pending));
+                }
+                
+                appt.save();  // Save the updated appointment
+                wasBookingSuccessful = true;
+                break;
+            }
+        }
+        
+        if (!wasBookingSuccessful) {
+            System.out.println("Invalid Appointment ID! Returning to main menu...");
+        } else {
+            System.out.println("Booking was successful! Appointment status is now PENDING.");
+        }
+        
+    } catch (IOException error) {
+        System.out.println("Error occurred scheduling new appointment: ");
+        error.printStackTrace();
     }
+}
+
     private void viewAppointmentStatuses() {
         try {
             System.out.println("Here are all your booked appointments and their statuses:\n");
