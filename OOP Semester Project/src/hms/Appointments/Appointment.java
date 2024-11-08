@@ -30,15 +30,15 @@ public class Appointment implements AppointmentPatientView, AppointmentDoctorVie
         this.id = id;
         this.patientId = patientId;
         this.doctorId = doctorId;
-        this.status = status;
         this.dateTime = dateTime;
         this.outcomeRecordId = outcomeRecordId;
+        this.status = status.or(() -> patientId.isPresent() ? Optional.of(AppointmentStatus.pending) : Optional.empty());
     }
 
     protected static List<Appointment> loadAllAppointments() throws IOException {
         List<Appointment> appointments = new ArrayList<Appointment>();
 
-        BufferedReader file = new BufferedReader(new FileReader("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/appointments.csv"));
+        BufferedReader file = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointments.csv"));
 
         String nextLine = file.readLine();
         while ((nextLine = file.readLine()) != null) {
@@ -50,11 +50,11 @@ public class Appointment implements AppointmentPatientView, AppointmentDoctorVie
             String status = appt[4];
             Optional<AppointmentStatus> apptStatus;
             if (status.toLowerCase().equals("confirmed"))
-                apptStatus = Optional.of(AppointmentStatus.Confirmed);
+                apptStatus = Optional.of(AppointmentStatus.confirmed);
             else if (status.toLowerCase().equals("cancelled"))
-                apptStatus = Optional.of(AppointmentStatus.Cancelled);
+                apptStatus = Optional.of(AppointmentStatus.cancelled);
             else if (status.toLowerCase().equals("completed"))
-                apptStatus = Optional.of(AppointmentStatus.Completed);
+                apptStatus = Optional.of(AppointmentStatus.completed);
             else
                 apptStatus = Optional.empty();
 
@@ -86,8 +86,8 @@ public class Appointment implements AppointmentPatientView, AppointmentDoctorVie
 
     public void save() throws IOException {
 
-        List<String> lines = Files.readAllLines(Paths.get("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/appointments.csv"));
-        FileOutputStream output = new FileOutputStream("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/appointments.csv");
+        List<String> lines = Files.readAllLines(Paths.get("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointments.csv"));
+        FileOutputStream output = new FileOutputStream("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointments.csv");
 
         boolean isEntryFound = false;
         for (int i = 0; i < lines.size(); i++) {
@@ -142,7 +142,7 @@ public class Appointment implements AppointmentPatientView, AppointmentDoctorVie
     public boolean isBookable() {
         if (this.status.isEmpty())
             return this.patientId.isEmpty();
-        return this.patientId.isEmpty() && !this.status.get().equals(AppointmentStatus.Cancelled);
+        return this.patientId.isEmpty() && !this.status.get().equals(AppointmentStatus.cancelled);
     }
 
     // TODO: Doctor to Implement accept()
