@@ -1,11 +1,10 @@
 package hms;
 
+import hms.Appointments.Appointment;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
-import hms.Appointments.Appointment;
 
 public class Administrator extends User {
     private List<Staff> staffList;
@@ -45,7 +44,10 @@ public class Administrator extends User {
         System.out.println("2. Manage Staff");
         System.out.println("3. View Appointments");
         System.out.println("4. Manage Inventory");
-        System.out.println("5. Log Out");
+        System.out.println("5. Create Bill");
+        System.out.println("6. View Bills");
+        System.out.println("7. Verify Blockchain Integrity");
+        System.out.println("8. Log Out");
         choice = scanner.nextInt();
         scanner.nextLine();
         switch (choice) {
@@ -62,6 +64,15 @@ public class Administrator extends User {
                 manageInventory(scanner);
                 break;
             case 5:
+                createBill(scanner);
+                break;
+            case 6:
+                viewBills();
+                break;
+            case 7:
+                verifyBlockchain();
+                break;
+            case 8:
                 // Returning false just means "I want to log out and go back to the login menu"
                 return false;
             default:
@@ -337,7 +348,7 @@ public class Administrator extends User {
     private void approveReplenishmentRequest(Scanner scanner) {
         System.out.println("Enter Replenishment Request ID to approve:");
         String requestID = scanner.nextLine();
-        List<ReplenishmentRequest> requests = ReplenishmentRequest.loadFromCSV("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/replenishment_requests.csv");
+        List<ReplenishmentRequest> requests = ReplenishmentRequest.loadFromCSV("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\replenishment_requests.csv");
 
         for (ReplenishmentRequest request : requests) {
             if (request.getRequestID().equals(requestID)) {
@@ -358,7 +369,7 @@ public class Administrator extends User {
     }
 
     private void saveReplenishmentRequests(List<ReplenishmentRequest> requests) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/replenishment_requests.csv"))) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\replenishment_requests.csv"))) {
             writer.println("requestID,medicationName,quantity,status");
             for (ReplenishmentRequest request : requests) {
                 writer.printf("%s,%s,%d,%s%n", request.getRequestID(), request.getMedicationName(), request.getQuantity(), request.getStatus());
@@ -368,12 +379,52 @@ public class Administrator extends User {
         }
     }
 
+    private void createBill(Scanner scanner) throws IOException {
+        System.out.print("Enter patient ID: ");
+        String patientId = scanner.nextLine();
+        System.out.print("Enter description: ");
+        String description = scanner.nextLine();
+        System.out.print("Enter amount: ");
+        double amount = scanner.nextDouble();
+        scanner.nextLine(); // Consume newline
+    
+        Billing.Bill bill = new Billing.Bill(generateId(), patientId, description, amount, false);
+        Billing.addBill(bill);
+        System.out.println("Bill created successfully: " + bill);
+    }
+
+    private void viewBills() throws IOException {
+        List<Billing.Bill> bills = Billing.getAllBills();
+        if (bills.isEmpty()) {
+            System.out.println("No bills found.");
+            return;
+        }
+    
+        System.out.println("List of Bills:");
+        for (Billing.Bill bill : bills) {
+            System.out.println(bill);
+        }
+    }
+
+    private String generateId() {
+        return "BILL" + System.currentTimeMillis();
+    }
+    
+    private void verifyBlockchain() {
+        if (Billing.verifyBlockchain()) {
+            System.out.println("Blockchain is valid.");
+        } else {
+            System.out.println("Blockchain integrity compromised!");
+        }        
+    }
+    
+
     private void loadStaffData() {
 
         try {
             this.staffList.clear();
 
-            BufferedReader file = new BufferedReader(new FileReader("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/users.csv"));
+            BufferedReader file = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\users.csv"));
             String nextLine = file.readLine();
             while ((nextLine = file.readLine()) != null) {
                 String[] user = nextLine.split(",");
@@ -399,7 +450,7 @@ public class Administrator extends User {
     }
 
     private void loadInventoryData() {
-        try (BufferedReader br = new BufferedReader(new FileReader("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/inventory.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\inventory.csv"))) {
             String line;
             boolean isFirstLine = true;
             while ((line = br.readLine()) != null) {
@@ -445,7 +496,7 @@ public class Administrator extends User {
     }
 
     private void saveInventoryData() {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/inventory.csv"))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\inventory.csv"))) {
             // Write the header
             bw.write("medicationName,stockLevel,lowStockAlertLevel");
             bw.newLine();
