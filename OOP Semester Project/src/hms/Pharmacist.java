@@ -147,7 +147,7 @@ public class Pharmacist extends Staff {
         ReplenishmentRequest request = new ReplenishmentRequest(
                 generateRequestID(), medicationName, quantity, "Pending");
         // Submit the request (this will also create the file if it doesn't exist)
-        request.saveToCSV("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/replenishment_requests.csv");
+        request.saveToCSV("../data/replenishment_requests.csv");
     }
 
     private String generateRequestID() {

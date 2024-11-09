@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Billing {
-    private static final String BILLING_FILE = "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\billing.csv";
-    private static final String BLOCKCHAIN_FILE = "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\blockchain.dat";
+    private static final String BILLING_FILE = "../data/billing.csv";
+    private static final String BLOCKCHAIN_FILE = "../data/blockchain.dat";
     private static Blockchain blockchain = new Blockchain();
 
     public static class Bill {

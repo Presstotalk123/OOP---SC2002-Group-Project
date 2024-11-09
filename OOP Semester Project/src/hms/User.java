@@ -36,7 +36,7 @@ public abstract class User {
     }
 
     Random rand = new Random();
-    List<String> existingIds = Files.readAllLines(Paths.get("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\users.csv"))
+    List<String> existingIds = Files.readAllLines(Paths.get("../data/users.csv"))
             .stream()
             .map(line -> line.split(",")[0])
             .collect(Collectors.toList());
@@ -68,7 +68,7 @@ public abstract class User {
 
   public static List<User> loadFromFile(String path) throws IOException {
     List<User> userArray = new ArrayList<User>();
-    String absolutePath = "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\users.csv";
+    String absolutePath = "../data/users.csv";
     BufferedReader file = new BufferedReader(new FileReader(path));
     String nextLine = file.readLine();
     while ((nextLine = file.readLine()) != null) {
@@ -90,8 +90,8 @@ public abstract class User {
   }
 
   public void save() throws IOException {
-    List<String> lines = Files.readAllLines(Paths.get("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\users.csv"));
-    FileOutputStream output = new FileOutputStream("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\users.csv");
+    List<String> lines = Files.readAllLines(Paths.get("../data/users.csv"));
+    FileOutputStream output = new FileOutputStream("../data/users.csv");
 
     boolean isEntryFound = false;
     for (int i = 0; i < lines.size(); i++) {

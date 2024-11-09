@@ -124,8 +124,8 @@ public abstract class Staff extends User {
 
     public void save() throws IOException {
         // staff.csv: id,gender,age,role,phoneNumber,email
-        List<String> lines = Files.readAllLines(Paths.get("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/staff.csv"));
-        FileOutputStream output = new FileOutputStream("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/staff.csv");
+        List<String> lines = Files.readAllLines(Paths.get("../data/staff.csv"));
+        FileOutputStream output = new FileOutputStream("../data/staff.csv");
 
         boolean isEntryFound = false;
         for (int i = 0; i < lines.size(); i++) {
@@ -152,7 +152,7 @@ public abstract class Staff extends User {
     }
 
     private static String[] loadStaffDataFromFile(String id) throws IOException {
-        BufferedReader file = new BufferedReader(new FileReader("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/staff.csv"));
+        BufferedReader file = new BufferedReader(new FileReader("../data/staff.csv"));
 
         String nextLine = file.readLine();
         while ((nextLine = file.readLine()) != null) {

@@ -72,7 +72,7 @@ public class Inventory {
 
     public void loadFromCSV() {
         medications.clear();
-        try (BufferedReader br = new BufferedReader(new FileReader("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/inventory.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("../data/inventory.csv"))) {
             String line;
             boolean isFirstLine = true;
             while ((line = br.readLine()) != null) {

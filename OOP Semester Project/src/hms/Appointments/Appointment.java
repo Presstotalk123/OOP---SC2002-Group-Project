@@ -38,7 +38,7 @@ public class Appointment implements AppointmentPatientView, AppointmentDoctorVie
     protected static List<Appointment> loadAllAppointments() throws IOException {
         List<Appointment> appointments = new ArrayList<Appointment>();
 
-        BufferedReader file = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointments.csv"));
+        BufferedReader file = new BufferedReader(new FileReader("../data/appointments.csv"));
 
         String nextLine = file.readLine();
         while ((nextLine = file.readLine()) != null) {
@@ -86,8 +86,8 @@ public class Appointment implements AppointmentPatientView, AppointmentDoctorVie
 
     public void save() throws IOException {
 
-        List<String> lines = Files.readAllLines(Paths.get("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointments.csv"));
-        FileOutputStream output = new FileOutputStream("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointments.csv");
+        List<String> lines = Files.readAllLines(Paths.get("../data/appointments.csv"));
+        FileOutputStream output = new FileOutputStream("../data/appointments.csv");
 
         boolean isEntryFound = false;
         for (int i = 0; i < lines.size(); i++) {

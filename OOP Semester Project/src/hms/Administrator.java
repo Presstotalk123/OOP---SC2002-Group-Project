@@ -348,7 +348,7 @@ public class Administrator extends User {
     private void approveReplenishmentRequest(Scanner scanner) {
         System.out.println("Enter Replenishment Request ID to approve:");
         String requestID = scanner.nextLine();
-        List<ReplenishmentRequest> requests = ReplenishmentRequest.loadFromCSV("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\replenishment_requests.csv");
+        List<ReplenishmentRequest> requests = ReplenishmentRequest.loadFromCSV("../data/replenishment_requests.csv");
 
         for (ReplenishmentRequest request : requests) {
             if (request.getRequestID().equals(requestID)) {
@@ -369,7 +369,7 @@ public class Administrator extends User {
     }
 
     private void saveReplenishmentRequests(List<ReplenishmentRequest> requests) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\replenishment_requests.csv"))) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("../data/replenishment_requests.csv"))) {
             writer.println("requestID,medicationName,quantity,status");
             for (ReplenishmentRequest request : requests) {
                 writer.printf("%s,%s,%d,%s%n", request.getRequestID(), request.getMedicationName(), request.getQuantity(), request.getStatus());
@@ -424,7 +424,7 @@ public class Administrator extends User {
         try {
             this.staffList.clear();
 
-            BufferedReader file = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\users.csv"));
+            BufferedReader file = new BufferedReader(new FileReader("../data/users.csv"));
             String nextLine = file.readLine();
             while ((nextLine = file.readLine()) != null) {
                 String[] user = nextLine.split(",");
@@ -450,7 +450,7 @@ public class Administrator extends User {
     }
 
     private void loadInventoryData() {
-        try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\inventory.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("../data/inventory.csv"))) {
             String line;
             boolean isFirstLine = true;
             while ((line = br.readLine()) != null) {
@@ -496,7 +496,7 @@ public class Administrator extends User {
     }
 
     private void saveInventoryData() {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\inventory.csv"))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("../data/inventory.csv"))) {
             // Write the header
             bw.write("medicationName,stockLevel,lowStockAlertLevel");
             bw.newLine();

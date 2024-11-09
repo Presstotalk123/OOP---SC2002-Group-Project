@@ -44,8 +44,8 @@ public class Prescription {
     }
 
     public void save() throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/prescription.csv"));
-        FileOutputStream output = new FileOutputStream("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/prescription.csv");
+        List<String> lines = Files.readAllLines(Paths.get("../data/prescription.csv"));
+        FileOutputStream output = new FileOutputStream("../data/prescription.csv");
 
         boolean isEntryFound = false;
         for (int i = 0; i < lines.size(); i++) {
@@ -72,7 +72,7 @@ public class Prescription {
 
     public static List<Prescription> getAll() throws IOException {
         List<Prescription> array = new ArrayList<Prescription>();
-        BufferedReader file = new BufferedReader(new FileReader("/Users/sam/programming/OOP---SC2002-Group-Project/OOP Semester Project/data/prescription.csv"));
+        BufferedReader file = new BufferedReader(new FileReader("../data/prescription.csv"));
         String nextLine = file.readLine();
         while ((nextLine = file.readLine()) != null) {
             String[] prescription = nextLine.split(",");

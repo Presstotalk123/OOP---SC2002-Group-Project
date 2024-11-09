@@ -30,8 +30,8 @@ public class Doctor extends Staff {
     @Override
     public void save() throws IOException {
         // staff.csv: id,gender,age,role,phoneNumber,email,specialization
-        List<String> lines = Files.readAllLines(Paths.get("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\staff.csv"));
-        FileOutputStream output = new FileOutputStream("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\staff.csv");
+        List<String> lines = Files.readAllLines(Paths.get("../data/staff.csv"));
+        FileOutputStream output = new FileOutputStream("../data/staff.csv");
 
         boolean isEntryFound = false;
         for (int i = 0; i < lines.size(); i++) {
@@ -164,7 +164,7 @@ public class Doctor extends Staff {
         String line;
         String separator = ",";
     
-        try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointments.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("../data/appointments.csv"))) {
             br.readLine(); // Skip header row
     
             while ((line = br.readLine()) != null) {
@@ -392,7 +392,7 @@ public class Doctor extends Staff {
         AppointmentOutcomeRecord outcomeRecord = new AppointmentOutcomeRecord(appointmentID, dateOfAppointment, serviceType, prescribedMedications, consultationNotes);
 
         // Save the outcome record to the CSV file
-        try (PrintWriter pw = new PrintWriter(new FileWriter("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointment_outcome_records.csv", true))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter("../data/appointment_outcome_records.csv", true))) {
             StringBuilder sb = new StringBuilder();
             sb.append(outcomeRecord.getAppointmentID()).append(",");
             sb.append(outcomeRecord.getDateOfAppointment().getTime()).append(",");
@@ -409,7 +409,7 @@ public class Doctor extends Staff {
         String line;
         String separator = ",";
 
-        try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\Patient.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("../data/Patient.csv"))) {
             // Skip header row
             br.readLine();
 
@@ -425,7 +425,7 @@ public class Doctor extends Staff {
         return medicalRecords;
     }
     public void clearAppointments() {
-        String filePath = "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointments.csv";
+        String filePath = "../data/appointments.csv";
     
         try {
             // Read all lines, retaining only the header
@@ -455,7 +455,7 @@ public class Doctor extends Staff {
         String line;
         String separator = ",";
 
-        try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\Patient.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("../data/Patient.csv"))) {
             // Read all lines and store them in a list
             while ((line = br.readLine()) != null) {
                 String[] record = line.split(separator);
@@ -468,14 +468,14 @@ public class Doctor extends Staff {
         }
 
         // Write the updated records back to the CSV file
-        try (PrintWriter pw = new PrintWriter(new FileWriter("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\Patient.csv"))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter("../data/Patient.csv"))) {
             for (String[] record : medicalRecords) {
                 pw.println(String.join(separator, record));
             }
         }
     }
     private void viewPersonalSchedule() {
-        String filePath = "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointments.csv";
+        String filePath = "../data/appointments.csv";
         List<Appointment> personalSchedule = new ArrayList<>();
     
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {

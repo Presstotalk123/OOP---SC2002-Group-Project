@@ -67,7 +67,7 @@ public class AppointmentOutcomeRecord {
     public static List<AppointmentOutcomeRecord> getAllRecords() {
         List<AppointmentOutcomeRecord> records = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointment_outcome_records.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("../data/appointment_outcome_records.csv"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(",");
