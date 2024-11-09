@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import hms.Doctor;
+
 
 public class Appointment implements AppointmentPatientView, AppointmentDoctorView {
     private String id;
@@ -133,6 +135,24 @@ public class Appointment implements AppointmentPatientView, AppointmentDoctorVie
         DateTimeFormatter patternDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter patternTime = DateTimeFormatter.ofPattern("HH:mm:ss");
         return this.dateTime.format(patternDate) + " at " + this.dateTime.format(patternTime);
+    }
+
+    public String getDate() {
+        DateTimeFormatter patternDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return this.dateTime.format(patternDate);
+    }
+
+    public String getTime() {
+        DateTimeFormatter patternTime = DateTimeFormatter.ofPattern("HH:mm:ss");
+        return this.dateTime.format(patternTime);
+    }
+
+    public Doctor getDoctor() {
+        try {
+            return new Doctor(this.doctorId);
+        } catch (IOException error) {
+            return null;
+        }
     }
 
     public boolean isBooked() {

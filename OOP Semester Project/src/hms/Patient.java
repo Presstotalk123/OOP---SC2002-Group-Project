@@ -106,25 +106,40 @@ public class Patient extends User {
     }
 
     private void rescheduleOrCancelAppointment(Scanner scanner) {
+        System.out.println("To reschedule an appointment, you need to cancel an existing appointment.");
+        System.out.println("After cancelling, you'll be asked if you want to schedule a new appointment.\n");
+        
+        String tableFormatter = "| %-4s | %-10s | %-8s | %-18s | %-18s |%n";
+
+        System.out.println("+------+------------+----------+--------------------+--------------------+");
+        System.out.println("|                Please choose an appointment to cancel:                 |");
+        System.out.println("+------+------------+----------+--------------------+--------------------+");
+        System.out.println("| ID   | Date       | Time     | Doctor Name        | Specialisation     |");
+        System.out.println("+------+------------+----------+--------------------+--------------------+");
+
         try {
-            System.out.println("To reschedule an appointment, you need to cancel an existing appointment.");
-            System.out.println("After cancelling, you'll be asked if you want to schedule a new appointment.");
-            System.out.println(
-                    "Please choose an appointment to cancel:\n");
             List<AppointmentPatientView> appts = AppointmentPatientView.loadAllAppointments();
             Iterator<AppointmentPatientView> it = appts.iterator();
             boolean foundAnyAppts = false;
+
             while (it.hasNext()) {
                 AppointmentPatientView appt = it.next();
                 if (appt.getPatientId().isPresent() && appt.getPatientId().get().equals(this.id)) {
-                    System.out.println("(" + appt.getId() + ") - " + appt.getDateTime().toString());
+
+                    Doctor apptDoctor = appt.getDoctor();
+                    System.out.format(tableFormatter, appt.getId(), appt.getDate(), appt.getTime(), apptDoctor.name,
+                            apptDoctor.specialization);
                     foundAnyAppts = true;
                 }
             }
             if (!foundAnyAppts) {
-                System.out.println("You have no booked appointments!\n");
+                System.out.println("|                    You have no booked appointments!                    |");
+                System.out.println("+------+------------+----------+--------------------+--------------------+");
                 return;
             }
+
+            System.out.println("+------+------------+----------+--------------------+--------------------+");
+
             System.out.println("");
             System.out.print("Enter the ID of the appointment you want to cancel: ");
             String selectedAppointmentId = scanner.nextLine();
@@ -169,26 +184,41 @@ public class Patient extends User {
     }
 
     private void scheduleAppointment(Scanner scanner) {
+
+        String tableFormatter = "| %-4s | %-10s | %-8s | %-18s | %-18s |%n";
+
+        System.out.println("+------+------------+----------+--------------------+--------------------+");
+        System.out.println("|                Here are all the Available appointments:                |");
+        System.out.println("+------+------------+----------+--------------------+--------------------+");
+        System.out.println("| ID   | Date       | Time     | Doctor Name        | Specialisation     |");
+        System.out.println("+------+------------+----------+--------------------+--------------------+");
+
         try {
             List<AppointmentPatientView> appts = AppointmentPatientView.loadAllAppointments();
-            System.out.println("Here are all the available appointments:");
             Iterator<AppointmentPatientView> it = appts.iterator();
             boolean foundAnyAppts = false;
 
             while (it.hasNext()) {
                 AppointmentPatientView appt = it.next();
                 if (appt.isBookable()) {
-                    System.out.println("(" + appt.getId() + ") - " + appt.getDateTime().toString());
+
+                    Doctor apptDoctor = appt.getDoctor();
+                    System.out.format(tableFormatter, appt.getId(), appt.getDate(), appt.getTime(), apptDoctor.name,
+                            apptDoctor.specialization);
                     foundAnyAppts = true;
                 }
             }
 
             if (!foundAnyAppts) {
-                System.out.println("No more available appointments!\n");
+                System.out.println("|                      No more available appointments                    |");
+                System.out.println("+------+------------+----------+--------------------+--------------------+");
                 return;
             }
 
-            System.out.print("Enter the ID of the appointment you want to book: ");
+            System.out.println("+------+------------+----------+--------------------+--------------------+");
+
+
+            System.out.print("\nEnter the ID of the appointment you want to book: ");
             String selectedAppointmentId = scanner.nextLine();
             boolean wasBookingSuccessful = false;
 
@@ -211,37 +241,49 @@ public class Patient extends User {
             if (!wasBookingSuccessful) {
                 System.out.println("Invalid Appointment ID! Returning to main menu...");
             } else {
-                System.out.println("Booking was successful! Appointment status is now PENDING.");
+                System.out.println("Booking was successful! Appointment status is now PENDING.\n");
             }
 
         } catch (IOException error) {
             System.out.println("Error occurred scheduling new appointment: ");
             error.printStackTrace();
         }
+
     }
 
     private void viewAppointmentStatuses() {
+        String tableFormatter = "| %-4s | %-10s | %-8s | %-18s | %-18s | %-10s |%n";
+
+        System.out.println("+------+------------+----------+--------------------+--------------------+------------+");
+        System.out.println("|                  Here are all your appointments and their statuses:                 |");
+        System.out.println("+------+------------+----------+--------------------+--------------------+------------+");
+        System.out.println("| ID   | Date       | Time     | Doctor Name        | Specialisation     | Status     |");
+        System.out.println("+------+------------+----------+--------------------+--------------------+------------+");
+
+
         try {
-            System.out.println("Here are all your booked appointments and their statuses:\n");
             List<AppointmentPatientView> appts = AppointmentPatientView.loadAllAppointments();
             Iterator<AppointmentPatientView> it = appts.iterator();
             boolean foundAnyAppts = false;
+
             while (it.hasNext()) {
                 AppointmentPatientView appt = it.next();
                 if (appt.getPatientId().isPresent() && appt.getPatientId().get().equals(this.id)) {
-                    Optional<AppointmentStatus> status = appt.getStatus();
-                    System.out.println(
-                            "(" + appt.getId() + ") - " + appt.getDateTime().toString() + " - " + (status.isEmpty()
-                                    ? "PENDING"
-                                    : status.get().toString().toUpperCase()));
+
+                    Doctor apptDoctor = appt.getDoctor();
+                    System.out.format(tableFormatter, appt.getId(), appt.getDate(), appt.getTime(), apptDoctor.name,
+                            apptDoctor.specialization, appt.getStatus().get());
                     foundAnyAppts = true;
                 }
             }
+
             if (!foundAnyAppts) {
-                System.out.println("You have no booked appointments!\n");
+                System.out.println("|                          No currently scheduled appointments                        |");
+                System.out.println("+------+------------+----------+--------------------+--------------------+------------+\n");
                 return;
             }
-            System.out.println("");
+
+            System.out.println("+------+------------+----------+--------------------+--------------------+------------+\n");
 
         } catch (IOException error) {
             System.out.println("Error occurred retrieving your appointment: ");

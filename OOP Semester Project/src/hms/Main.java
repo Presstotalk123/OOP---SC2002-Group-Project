@@ -25,7 +25,7 @@ class Main {
     // Load data on program startup
     List<User> users;
     try {
-      users = User.loadFromFile("../data/users.csv");
+      users = User.loadAllUsers();
       System.out.println(users);
     } catch (IOException error) {
       System.out.println("Error occurred when loading data: ");

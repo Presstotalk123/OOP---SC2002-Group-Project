@@ -22,24 +22,24 @@ public abstract class User {
   public User(Scanner scanner, String role) throws IOException {
     System.out.print("Enter a name for this new user: ");
     String name = scanner.nextLine();
-    while(true){
-    System.out.print("Enter a password for this new user: ");
-    String password = scanner.nextLine();
-    System.out.print("Re-enter the password: ");
-    String password2 = scanner.nextLine();
-    if(password.equals(password2)){
-      this.password = password;
-      break;
-    } else {
-      System.out.println("Passwords do not match. Please try again.");
-    }
+    while (true) {
+      System.out.print("Enter a password for this new user: ");
+      String password = scanner.nextLine();
+      System.out.print("Re-enter the password: ");
+      String password2 = scanner.nextLine();
+      if (password.equals(password2)) {
+        this.password = password;
+        break;
+      } else {
+        System.out.println("Passwords do not match. Please try again.");
+      }
     }
 
     Random rand = new Random();
-    List<String> existingIds = Files.readAllLines(Paths.get("../data/users.csv"))
-            .stream()
-            .map(line -> line.split(",")[0])
-            .collect(Collectors.toList());
+    List<String> existingIds = User.loadAllUsers()
+        .stream()
+        .map(user -> user.id)
+        .collect(Collectors.toList());
 
     while (true) {
       int id = rand.nextInt(9000) + 1000;
@@ -50,7 +50,6 @@ public abstract class User {
       }
     }
     this.name = name;
-    this.password = password;
     this.role = role;
 
   }
@@ -62,14 +61,22 @@ public abstract class User {
     this.role = role;
   }
 
+  public User(String id) throws IOException {
+    User existingUser = User.loadAllUsers().stream().filter(user -> user.id.equals(id)).findFirst().get();
+    this.id = existingUser.id;
+    this.name = existingUser.name;
+    this.password = existingUser.password;
+    this.role = existingUser.role;
+  }
+
   public boolean login(String password) {
     return this.password.equals(password);
   }
 
-  public static List<User> loadFromFile(String path) throws IOException {
+  public static List<User> loadAllUsers() throws IOException {
     List<User> userArray = new ArrayList<User>();
-    String absolutePath = "../data/users.csv";
-    BufferedReader file = new BufferedReader(new FileReader(path));
+
+    BufferedReader file = new BufferedReader(new FileReader("../data/users.csv"));
     String nextLine = file.readLine();
     while ((nextLine = file.readLine()) != null) {
       String[] user = nextLine.split(",");

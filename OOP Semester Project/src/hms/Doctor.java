@@ -22,9 +22,14 @@ public class Doctor extends Staff {
             System.out.println("Unable to save user " + name + " due to IOException: " + error.getMessage());
         }
     }
-    
+
     public Doctor(String id, String name, String password) throws IOException {
         super(id, name, password, "doctor");
+    }
+
+    // Basically a findDoctorById
+    public Doctor(String id) throws IOException {
+        super(id);
     }
 
     public boolean eventLoop(Scanner scanner) {

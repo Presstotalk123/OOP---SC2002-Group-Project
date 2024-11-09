@@ -85,6 +85,16 @@ public abstract class Staff extends User {
 
     }
 
+    public Staff(String id) throws IOException {
+        super(id);
+        String[] staffData = Staff.loadStaffDataFromFile(id);
+        this.gender = staffData[1].equals("male") ? Gender.Male : Gender.Female;
+        this.age = Integer.parseInt(staffData[2]);
+        this.phoneNumber = staffData[4];
+        this.emailAddress = staffData[5];
+        this.specialization = staffData[6];
+    }
+
     public Staff(String id, String name, String password, String role) throws IOException {
         super(id, name, password, role);
         String[] staffData = Staff.loadStaffDataFromFile(id);
@@ -92,6 +102,7 @@ public abstract class Staff extends User {
         this.age = Integer.parseInt(staffData[2]);
         this.phoneNumber = staffData[4];
         this.emailAddress = staffData[5];
+        this.specialization = staffData[6];
     }
 
     public String getRole() {
