@@ -59,6 +59,7 @@ public class Patient extends User {
                 5. View all your Appointment Statuses
                 6. View Appointment Outcome Records
                 7. Log Out
+                8. Leave Feedback
                 Enter your choice:""");
         int choice = scanner.nextInt();
         scanner.nextLine();
@@ -97,11 +98,43 @@ public class Patient extends User {
                 break;
             case 7:
                 return false;
+            case 8:
+                this.giveFeedback(scanner);
+                break;
             default:
                 System.out.println("Invalid choice. Please enter a number from 1 to 7.");
                 break;
         }
         return true;
+    }
+
+    private void giveFeedback(Scanner scanner) {
+
+        System.out.println("What was you experience with our hospital management system? How can we improve?");
+        String comments = scanner.nextLine();
+
+        int rating = 0;
+
+        while (true) {
+            System.out.print("Please rate your experience from 1 to 5: ");
+            try {
+                rating = scanner.nextInt();
+                scanner.nextLine();
+                break;
+            } catch (NumberFormatException error) {
+                System.out.println("Invalid Input!");
+            }
+        }
+
+        System.out.println("Thank you for your feedback!");
+
+        Feedback feedback = new Feedback(this.id, comments, rating);
+        try {
+            feedback.save();
+        } catch (IOException e) {
+            System.out.println("error occurred saving feedback: " + e.getMessage());
+        }
+
     }
 
     private void viewAppointmentOutcomeRecords() {
