@@ -93,8 +93,7 @@ public class Patient extends User {
                 this.viewAppointmentStatuses();
                 break;
             case 6:
-                // TODO: Implement when Doctor and Pharmacist are done.
-                System.out.println("Not Implemented Yet\n");
+                this.viewAppointmentOutcomeRecords();
                 break;
             case 7:
                 return false;
@@ -103,6 +102,49 @@ public class Patient extends User {
                 break;
         }
         return true;
+    }
+
+    private void viewAppointmentOutcomeRecords() {
+        List<AppointmentOutcomeRecord> records = AppointmentOutcomeRecord.getAllRecords();
+        for (AppointmentOutcomeRecord apptOutcome : records) {
+            AppointmentPatientView selectedAppt = null;
+
+            if (!apptOutcome.getPatientID().equals(this.id)) {
+                continue;
+            }
+
+            try {
+                List<AppointmentPatientView> appts = AppointmentPatientView.loadAllAppointments();
+                for (AppointmentPatientView appt : appts) {
+                    if (appt.getId().equals(apptOutcome.getAppointmentID())) {
+                        selectedAppt = appt;
+                    }
+                }
+    
+                if (selectedAppt == null) {
+                    continue;
+                }
+
+                String tableFormatter = "| %-10s | %-8s | %-18s | %-13s | %-34s | %-34s | %-44s | %-52s | %n";
+
+                System.out.println("+------------+----------+--------------------+---------------+------------------------------------+------------------------------------+----------------------------------------------+------------------------------------------------------+");
+                System.out.println("|                                                                                                             Appointment Outcome Records:                                                                                                   |");
+                System.out.println("+------------+----------+--------------------+---------------+------------------------------------+------------------------------------+----------------------------------------------+------------------------------------------------------+");
+                System.out.println("| Date       | Time     | Doctor Name        | Service Type  | Diagnosis                          | Treatment Plan                     | Prescriptions                                | Consultation Notes                                   |");
+                System.out.println("+------------+----------+--------------------+---------------+------------------------------------+------------------------------------+----------------------------------------------+------------------------------------------------------+");
+
+                System.out.format(tableFormatter, selectedAppt.getDateString(), selectedAppt.getTimeString(), selectedAppt.getDoctor().name, apptOutcome.getServiceType(), apptOutcome.getDiagnosis(), apptOutcome.getTreatmentPlan(), String.join(", ", apptOutcome.getPrescribedMedications().stream().map(a -> a.getMedicationName()).toList()), apptOutcome.getConsultationNotes());
+
+                System.out.println("+------------+----------+--------------------+---------------+------------------------------------+------------------------------------+----------------------------------------------+------------------------------------------------------+");
+
+
+            }
+
+            catch (IOException e) {
+                continue;
+            }
+
+        }
     }
 
     private void rescheduleOrCancelAppointment(Scanner scanner) {
@@ -127,7 +169,7 @@ public class Patient extends User {
                 if (appt.getPatientId().isPresent() && appt.getPatientId().get().equals(this.id)) {
 
                     Doctor apptDoctor = appt.getDoctor();
-                    System.out.format(tableFormatter, appt.getId(), appt.getDate(), appt.getTime(), apptDoctor.name,
+                    System.out.format(tableFormatter, appt.getId(), appt.getDateString(), appt.getTimeString(), apptDoctor.name,
                             apptDoctor.specialization);
                     foundAnyAppts = true;
                 }
@@ -203,7 +245,7 @@ public class Patient extends User {
                 if (appt.isBookable()) {
 
                     Doctor apptDoctor = appt.getDoctor();
-                    System.out.format(tableFormatter, appt.getId(), appt.getDate(), appt.getTime(), apptDoctor.name,
+                    System.out.format(tableFormatter, appt.getId(), appt.getDateString(), appt.getTimeString(), apptDoctor.name,
                             apptDoctor.specialization);
                     foundAnyAppts = true;
                 }
@@ -271,7 +313,7 @@ public class Patient extends User {
                 if (appt.getPatientId().isPresent() && appt.getPatientId().get().equals(this.id)) {
 
                     Doctor apptDoctor = appt.getDoctor();
-                    System.out.format(tableFormatter, appt.getId(), appt.getDate(), appt.getTime(), apptDoctor.name,
+                    System.out.format(tableFormatter, appt.getId(), appt.getDateString(), appt.getTimeString(), apptDoctor.name,
                             apptDoctor.specialization, appt.getStatus().get());
                     foundAnyAppts = true;
                 }

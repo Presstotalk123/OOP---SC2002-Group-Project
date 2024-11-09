@@ -12,11 +12,9 @@ public interface AppointmentPatientView {
 
   String getId();
 
-  String getDateTime();
+  String getDateString();
 
-  String getDate();
-
-  String getTime();
+  String getTimeString();
 
   Doctor getDoctor();
 

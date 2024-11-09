@@ -37,7 +37,7 @@ public class Appointment implements AppointmentPatientView, AppointmentDoctorVie
         this.status = status.or(() -> patientId.isPresent() ? Optional.of(AppointmentStatus.pending) : Optional.empty());
     }
 
-    protected static List<Appointment> loadAllAppointments() throws IOException {
+    public static List<Appointment> loadAllAppointments() throws IOException {
         List<Appointment> appointments = new ArrayList<Appointment>();
 
         BufferedReader file = new BufferedReader(new FileReader("../data/appointments.csv"));
@@ -137,12 +137,16 @@ public class Appointment implements AppointmentPatientView, AppointmentDoctorVie
         return this.dateTime.format(patternDate) + " at " + this.dateTime.format(patternTime);
     }
 
-    public String getDate() {
+    public String getDateString() {
         DateTimeFormatter patternDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return this.dateTime.format(patternDate);
     }
 
-    public String getTime() {
+    public LocalDateTime getDate() {
+        return this.dateTime;
+    }
+
+    public String getTimeString() {
         DateTimeFormatter patternTime = DateTimeFormatter.ofPattern("HH:mm:ss");
         return this.dateTime.format(patternTime);
     }
