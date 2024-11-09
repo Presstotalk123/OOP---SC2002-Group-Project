@@ -1,4 +1,5 @@
 package hms;
+
 import hms.Appointments.Appointment;
 import hms.Appointments.AppointmentPatientView;
 import hms.Appointments.AppointmentStatus;
@@ -17,16 +18,16 @@ public class Patient extends User {
     // Prompt for information about patient
     public Patient(Scanner scanner) throws IOException {
         super(scanner, "patient"); // Creates base User
-        
+
         try {
             super.save(); // Save to users.csv
         } catch (IOException error) {
             System.out.println("Unable to save user " + name + " due to IOException: " + error.getMessage());
         }
-        
+
         this.patientRecord = new MedicalRecords(scanner, this.id, this.name); // Create Patient Medical Record
-        
-        // Save the new MedicalRecord to Patient.csv immediately
+
+        // Save the new MedicalRecord to medical_record.csv immediately
         try {
             this.patientRecord.saveToFile();
             System.out.println("Medical Record for Patient saved successfully.");
@@ -34,19 +35,20 @@ public class Patient extends User {
             System.out.println("Error saving Medical Record: " + error.getMessage());
         }
     }
-    
+
     public Patient(String id, String name, String password) throws IOException {
         super(id, name, password, "patient");
-    
+
         this.patientRecord = MedicalRecords.getRecord(this, id);
-        
-        if (this.patientRecord == null) {
-            this.patientRecord = new MedicalRecords(new Scanner(System.in), id, name); 
-            this.patientRecord.saveToFile(); // Save new MedicalRecords if not found
-        }
+
+        // Don't create a new Scanner, will lead to memory leaks.
+        // Also multiple scanners is very buggy in Java.
+        // if (this.patientRecord == null) {
+        // this.patientRecord = new MedicalRecords(new Scanner(System.in), id, name);
+        // this.patientRecord.saveToFile(); // Save new MedicalRecords if not found
+        // }
     }
-    
-    
+
     public boolean eventLoop(Scanner scanner) {
         System.out.print("""
                 Patient Menu:
@@ -102,6 +104,7 @@ public class Patient extends User {
         }
         return true;
     }
+
     private void rescheduleOrCancelAppointment(Scanner scanner) {
         try {
             System.out.println("To reschedule an appointment, you need to cancel an existing appointment.");
@@ -164,57 +167,58 @@ public class Patient extends User {
             error.printStackTrace();
         }
     }
+
     private void scheduleAppointment(Scanner scanner) {
-    try {
-        List<AppointmentPatientView> appts = AppointmentPatientView.loadAllAppointments();
-        System.out.println("Here are all the available appointments:");
-        Iterator<AppointmentPatientView> it = appts.iterator();
-        boolean foundAnyAppts = false;
-        
-        while (it.hasNext()) {
-            AppointmentPatientView appt = it.next();
-            if (appt.isBookable()) {
-                System.out.println("(" + appt.getId() + ") - " + appt.getDateTime().toString());
-                foundAnyAppts = true;
-            }
-        }
-        
-        if (!foundAnyAppts) {
-            System.out.println("No more available appointments!\n");
-            return;
-        }
-        
-        System.out.print("Enter the ID of the appointment you want to book: ");
-        String selectedAppointmentId = scanner.nextLine();
-        boolean wasBookingSuccessful = false;
-        
-        it = appts.iterator();
-        while (it.hasNext()) {
-            AppointmentPatientView appt = it.next();
-            if (appt.getId().equals(selectedAppointmentId)) {
-                // Set patient ID and status to Pending
-                appt.schedule(this.id);  // Assign patient ID
-                if (appt instanceof Appointment) {  // Ensure it's a modifiable instance
-                    ((Appointment) appt).setStatus(Optional.of(AppointmentStatus.pending));
+        try {
+            List<AppointmentPatientView> appts = AppointmentPatientView.loadAllAppointments();
+            System.out.println("Here are all the available appointments:");
+            Iterator<AppointmentPatientView> it = appts.iterator();
+            boolean foundAnyAppts = false;
+
+            while (it.hasNext()) {
+                AppointmentPatientView appt = it.next();
+                if (appt.isBookable()) {
+                    System.out.println("(" + appt.getId() + ") - " + appt.getDateTime().toString());
+                    foundAnyAppts = true;
                 }
-                
-                appt.save();  // Save the updated appointment
-                wasBookingSuccessful = true;
-                break;
             }
+
+            if (!foundAnyAppts) {
+                System.out.println("No more available appointments!\n");
+                return;
+            }
+
+            System.out.print("Enter the ID of the appointment you want to book: ");
+            String selectedAppointmentId = scanner.nextLine();
+            boolean wasBookingSuccessful = false;
+
+            it = appts.iterator();
+            while (it.hasNext()) {
+                AppointmentPatientView appt = it.next();
+                if (appt.getId().equals(selectedAppointmentId)) {
+                    // Set patient ID and status to Pending
+                    appt.schedule(this.id); // Assign patient ID
+                    if (appt instanceof Appointment) { // Ensure it's a modifiable instance
+                        ((Appointment) appt).setStatus(Optional.of(AppointmentStatus.pending));
+                    }
+
+                    appt.save(); // Save the updated appointment
+                    wasBookingSuccessful = true;
+                    break;
+                }
+            }
+
+            if (!wasBookingSuccessful) {
+                System.out.println("Invalid Appointment ID! Returning to main menu...");
+            } else {
+                System.out.println("Booking was successful! Appointment status is now PENDING.");
+            }
+
+        } catch (IOException error) {
+            System.out.println("Error occurred scheduling new appointment: ");
+            error.printStackTrace();
         }
-        
-        if (!wasBookingSuccessful) {
-            System.out.println("Invalid Appointment ID! Returning to main menu...");
-        } else {
-            System.out.println("Booking was successful! Appointment status is now PENDING.");
-        }
-        
-    } catch (IOException error) {
-        System.out.println("Error occurred scheduling new appointment: ");
-        error.printStackTrace();
     }
-}
 
     private void viewAppointmentStatuses() {
         try {
@@ -238,7 +242,7 @@ public class Patient extends User {
                 return;
             }
             System.out.println("");
-            
+
         } catch (IOException error) {
             System.out.println("Error occurred retrieving your appointment: ");
             error.printStackTrace();

@@ -409,7 +409,7 @@ public class Doctor extends Staff {
         String line;
         String separator = ",";
 
-        try (BufferedReader br = new BufferedReader(new FileReader("../data/Patient.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("../data/medical_record.csv"))) {
             // Skip header row
             br.readLine();
 
@@ -455,7 +455,7 @@ public class Doctor extends Staff {
         String line;
         String separator = ",";
 
-        try (BufferedReader br = new BufferedReader(new FileReader("../data/Patient.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("../data/medical_record.csv"))) {
             // Read all lines and store them in a list
             while ((line = br.readLine()) != null) {
                 String[] record = line.split(separator);
@@ -468,7 +468,7 @@ public class Doctor extends Staff {
         }
 
         // Write the updated records back to the CSV file
-        try (PrintWriter pw = new PrintWriter(new FileWriter("../data/Patient.csv"))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter("../data/medical_record.csv"))) {
             for (String[] record : medicalRecords) {
                 pw.println(String.join(separator, record));
             }
