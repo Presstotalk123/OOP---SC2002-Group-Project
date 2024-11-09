@@ -13,54 +13,20 @@ import java.util.stream.Collectors;
 
 public class Doctor extends Staff {
 
-
-    // I removed this as I'm not sure what your intention for specialisation is.
-    // It doesn't add any functionality so idk what you're planning to do with it.
-
-
     public Doctor(Scanner scanner) throws IOException {
         super(scanner, "doctor");
+
         try {
             super.save();
         } catch (IOException error) {
             System.out.println("Unable to save user " + name + " due to IOException: " + error.getMessage());
         }
     }
-    // Doctor.java
-    @Override
-    public void save() throws IOException {
-        // staff.csv: id,gender,age,role,phoneNumber,email,specialization
-        List<String> lines = Files.readAllLines(Paths.get("../data/staff.csv"));
-        FileOutputStream output = new FileOutputStream("../data/staff.csv");
-
-        boolean isEntryFound = false;
-        for (int i = 0; i < lines.size(); i++) {
-            String[] staff = lines.get(i).split(",");
-
-            if (staff.length == 7 && staff[0].equals(this.id)) {
-                String newEntry = this.id + "," + this.gender.toString().toLowerCase() + "," + this.age + ","
-                        + this.role + "," + this.phoneNumber + "," + this.emailAddress + "," + this.specialization + "\n";
-                output.write(newEntry.getBytes());
-                isEntryFound = true;
-            } else {
-                String line = lines.get(i) + "\n";
-                output.write(line.getBytes());
-            }
-        }
-
-        if (!isEntryFound) {
-            String newEntry = this.id + "," + this.gender.toString().toLowerCase() + "," + this.age + ","
-                    + this.role + "," + this.phoneNumber + "," + this.emailAddress + "," + this.specialization + "\n";
-            output.write(newEntry.getBytes());
-        }
-
-        output.close();
-    }
+    
     public Doctor(String id, String name, String password) throws IOException {
         super(id, name, password, "doctor");
     }
 
-    // TODO: Add EventLoop for all Doctor Menu items
     public boolean eventLoop(Scanner scanner) {
         System.out.print("""
                 Doctor Menu:
@@ -113,7 +79,7 @@ public class Doctor extends Staff {
                 viewPersonalSchedule();
                 break;
             case 4:
-                setAvailabilityForAppointments();
+                setAvailabilityForAppointments(scanner);
                 break;
             case 5:
                 viewPendingRequests(scanner);  // Interactive function for pending requests
@@ -522,8 +488,7 @@ public class Doctor extends Staff {
     
 
     // Placeholder method for "Set Availability for Appointments"
-    private void setAvailabilityForAppointments() {
-        Scanner scanner = new Scanner(System.in);
+    private void setAvailabilityForAppointments(Scanner scanner) {
 
         try {
             System.out.print("Enter start date and time (e.g., 2024-12-01 09:00): ");

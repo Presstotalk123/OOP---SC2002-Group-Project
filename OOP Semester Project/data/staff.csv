@@ -9,3 +9,4 @@ id,gender,age,role,number,email,specialization
 4661,male,19,doctor,88888888,samjam@gmail.comNA
 3689,male,19,doctor,99999999,samjam@gmail.comcardiologist
 9358,male,20,pharmacist,77777777,samjam@gmail.com,NA
+4290,male,55,doctor,99998888,doctor@docs.com,nurse
