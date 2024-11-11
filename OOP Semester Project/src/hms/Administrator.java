@@ -46,8 +46,9 @@ public class Administrator extends User {
         System.out.println("4. Manage Inventory");
         System.out.println("5. Create Bill");
         System.out.println("6. View Bills");
-        System.out.println("7. Verify Blockchain Integrity");
-        System.out.println("8. Log Out");
+        System.out.println("7. View Patient Feedback");
+        System.out.println("8. Verify Blockchain Integrity");
+        System.out.println("9. Log Out");
         choice = scanner.nextInt();
         scanner.nextLine();
         switch (choice) {
@@ -70,9 +71,12 @@ public class Administrator extends User {
                 viewBills();
                 break;
             case 7:
-                verifyBlockchain();
+                viewFeedback();
                 break;
             case 8:
+                verifyBlockchain();
+                break;
+            case 9:
                 // Returning false just means "I want to log out and go back to the login menu"
                 return false;
             default:
@@ -90,6 +94,44 @@ public class Administrator extends User {
         System.out.println("Press Enter to return to the admin menu.");
 
         scanner.nextLine(); // Wait for user to press Enter
+    }
+    private void viewFeedback() {
+        try {
+            List<String> feedbackList = Feedback.viewAllFeedback();
+            if (feedbackList.isEmpty()) {
+                System.out.println("No feedback available.");
+            } else {
+                System.out.println("Feedback List:");
+                System.out.printf("| %-12s | %-12s | %-50s | %-6s |%n", "Feedback ID", "Patient ID", "Comments", "Rating");
+                System.out.println("+--------------+--------------+----------------------------------------------------+--------+");
+    
+                for (String feedback : feedbackList) {
+                    String[] feedbackDetails = feedback.split(",");
+                    
+                    if (feedbackDetails.length == 4) { // Ensure data integrity
+                        String feedbackId = feedbackDetails[0].trim();
+                        String patientId = feedbackDetails[1].trim();
+                        String comments = feedbackDetails[2].trim();
+                        String rating = feedbackDetails[3].trim();
+    
+                        // Break comments into multiple lines if too long
+                        List<String> wrappedComments = wrapText(comments, 50);
+                        for (int i = 0; i < wrappedComments.size(); i++) {
+                            if (i == 0) {
+                                System.out.printf("| %-12s | %-12s | %-50s | %-6s |%n", 
+                                                  feedbackId, patientId, wrappedComments.get(i), rating);
+                            } else {
+                                System.out.printf("| %-12s | %-12s | %-50s | %-6s |%n", 
+                                                  "", "", wrappedComments.get(i), "");
+                            }
+                        }
+                    }
+                }
+                System.out.println("+--------------+--------------+----------------------------------------------------+--------+");
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading feedback: " + e.getMessage());
+        }
     }
 
     private void manageStaff(Scanner scanner) throws IOException {
