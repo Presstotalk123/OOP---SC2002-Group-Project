@@ -26,7 +26,9 @@ public class Pharmacist extends Staff {
                 2. Update Prescription Status
                 3. View Medication Inventory
                 4. Submit Replenishment Request
-                5. Log Out
+                5. View Pending Prescription
+                6. Dispense Medication
+                7. Log Out
                 Enter your choice:""");
 
         int choice = scanner.nextInt();
@@ -81,6 +83,22 @@ public class Pharmacist extends Staff {
                 submitReplenishmentRequest(medicationName, quantity);
                 break;
             case 5:
+                try {
+                    viewPendingPrescription();
+                } catch (IOException error) {
+                    System.out.println("Failed to view pending prescriptions: " + error.getMessage());
+                }
+                break;
+            case 6:
+                System.out.print("Enter Prescription ID to dispense: ");
+                String prescriptionIdToDispense = scanner.nextLine();
+                try {
+                    dispenseMedication(prescriptionIdToDispense);
+                } catch (IOException error) {
+                    System.out.println("Failed to dispense medication: " + error.getMessage());
+                }
+                break;
+            case 7:
                 return false;
             default:
                 System.out.println("Invalid choice. Please try again.");
@@ -111,7 +129,7 @@ public class Pharmacist extends Staff {
                 if (med != null) {
                     int newStockLevel = med.getStockLevel() - 1; // Assume 1 unit is dispensed per prescription
                     inventory.updateStockLevel(record.getMedicationName(), newStockLevel);
-                    inventory.saveToCSV("../data/inventory.csv");
+                    inventory.saveToCSV(".../data/inventory.csv");
                 }
             }
             break; // Exit the loop as we found the prescription
@@ -120,6 +138,50 @@ public class Pharmacist extends Staff {
 
     if (found) {
         System.out.println("Prescription status updated successfully.");
+    } else {
+        System.out.println("Prescription not found for the given prescription ID.");
+    }
+}
+public void viewPendingPrescription() throws IOException {
+    List<Prescription> records = Prescription.getAll();
+    boolean found = false;
+
+    for (Prescription record : records) {
+        if (record.getStatus() == PrescriptionStatus.Pending) {
+            System.out.println(record);
+            found = true;
+        }
+    }
+
+    if (!found) {
+        System.out.println("No pending prescriptions found.");
+    }
+}
+public void dispenseMedication(String prescriptionId) throws IOException {
+    List<Prescription> records = Prescription.getAll();
+    Inventory inventory = new Inventory();
+    inventory.loadFromCSV(); // Load the current inventory
+    boolean found = false;
+
+    for (Prescription record : records) {
+        if (record.getID().equals(prescriptionId)) {
+            record.updateStatus(PrescriptionStatus.Dispensed);
+            record.save();
+            found = true;
+
+            // Update inventory
+            Medication med = inventory.getMedication(record.getMedicationName());
+            if (med != null) {
+                int newStockLevel = med.getStockLevel() - record.getQuantity(); // Deduct the quantity specified in the prescription
+                inventory.updateStockLevel(record.getMedicationName(), newStockLevel);
+                inventory.saveToCSV(".../data/inventory.csv");
+            }
+            break; // Exit the loop as we found the prescription
+        }
+    }
+
+    if (found) {
+        System.out.println("Prescription dispensed successfully.");
     } else {
         System.out.println("Prescription not found for the given prescription ID.");
     }
