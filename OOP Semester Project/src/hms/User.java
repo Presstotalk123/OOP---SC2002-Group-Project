@@ -3,17 +3,14 @@ package hms;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class User {
   public String id;
   public String name;
   private String password;
-  public final String role;
+  public String role;
 
   // When a constructor with a scanner is used, it is expected for the subclass to
   // prompt for data.
@@ -22,34 +19,70 @@ public abstract class User {
   public User(Scanner scanner, String role) throws IOException {
     System.out.print("Enter a name for this new user: ");
     String name = scanner.nextLine();
-    while (true) {
-      System.out.print("Enter a password for this new user: ");
-      String password = scanner.nextLine();
-      System.out.print("Re-enter the password: ");
-      String password2 = scanner.nextLine();
-      if (password.equals(password2)) {
-        this.password = password;
-        break;
-      } else {
-        System.out.println("Passwords do not match. Please try again.");
-      }
+    while(true){
+    System.out.print("Enter a password for this new user: ");
+    String password = scanner.nextLine();
+    System.out.print("Re-enter the password: ");
+    String password2 = scanner.nextLine();
+    if(password.equals(password2)){
+      this.password = password;
+      break;
+    } else {
+      System.out.println("Passwords do not match. Please try again.");
+    }
     }
 
     Random rand = new Random();
-    List<String> existingIds = User.loadAllUsers()
-        .stream()
-        .map(user -> user.id)
-        .collect(Collectors.toList());
-
+    List<String> existingIds = Files.readAllLines(Paths.get(".../data/users.csv"))
+            .stream()
+            .map(line -> line.split(",")[0])
+            .collect(Collectors.toList());
+if(Objects.equals(role, "patient")){
     while (true) {
-      int id = rand.nextInt(9000) + 1000;
-      if (!existingIds.contains(Integer.toString(id))) {
+      int ID = rand.nextInt(9000) + 1000;
+      String id="P"+ID;
+      if (!existingIds.contains(id)) {
         System.out.println("Your ID is: " + id);
-        this.id = Integer.toString(id);
+        this.id = id;
         break;
       }
     }
+}
+else if(Objects.equals(role, "doctor")){
+      while (true) {
+        int ID = rand.nextInt(900) + 100;
+        String id="D"+ID;
+        if (!existingIds.contains(id)) {
+          System.out.println("Your ID is: " + id);
+          this.id = id;
+          break;
+        }
+      }
+    }
+else if(Objects.equals(role, "administrator")){
+  while (true) {
+    int ID = rand.nextInt(900) + 100;
+    String id="A"+ID;
+    if (!existingIds.contains(id)) {
+      System.out.println("Your ID is: " + id);
+      this.id = id;
+      break;
+    }
+  }
+}
+else if(Objects.equals(role, "pharmacist")){
+  while (true) {
+    int ID = rand.nextInt(900) + 100;
+    String id="P"+ID;
+    if (!existingIds.contains(id)) {
+      System.out.println("Your ID is: " + id);
+      this.id = id;
+      break;
+    }
+  }
+}
     this.name = name;
+    this.password = password;
     this.role = role;
 
   }
@@ -61,22 +94,14 @@ public abstract class User {
     this.role = role;
   }
 
-  public User(String id) throws IOException {
-    User existingUser = User.loadAllUsers().stream().filter(user -> user.id.equals(id)).findFirst().get();
-    this.id = existingUser.id;
-    this.name = existingUser.name;
-    this.password = existingUser.password;
-    this.role = existingUser.role;
-  }
-
   public boolean login(String password) {
     return this.password.equals(password);
   }
 
-  public static List<User> loadAllUsers() throws IOException {
+  public static List<User> loadFromFile(String path) throws IOException {
     List<User> userArray = new ArrayList<User>();
-
-    BufferedReader file = new BufferedReader(new FileReader("../data/users.csv"));
+    String absolutePath = ".../data/users.csv";
+    BufferedReader file = new BufferedReader(new FileReader(path));
     String nextLine = file.readLine();
     while ((nextLine = file.readLine()) != null) {
       String[] user = nextLine.split(",");
@@ -97,8 +122,8 @@ public abstract class User {
   }
 
   public void save() throws IOException {
-    List<String> lines = Files.readAllLines(Paths.get("../data/users.csv"));
-    FileOutputStream output = new FileOutputStream("../data/users.csv");
+    List<String> lines = Files.readAllLines(Paths.get(".../data/users.csv"));
+    FileOutputStream output = new FileOutputStream(".../data/users.csv");
 
     boolean isEntryFound = false;
     for (int i = 0; i < lines.size(); i++) {
