@@ -3,11 +3,12 @@ package hms;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Feedback {
     private static final String FEEDBACK_FILE = "feedback.csv";
-    private String id; // Unique feedback ID
+    int ID=new Random().nextInt(9000) + 1000;
+    private String id=Integer.toString(ID);
     private String patientId;
     private String comments;
     private int rating;
