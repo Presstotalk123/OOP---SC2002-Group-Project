@@ -1,38 +1,50 @@
 package hms;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.UUID;
 
 public class Feedback {
-  private String id;
-  private String patientId;
-  private String comments;
-  private int rating;
+    private static final String FEEDBACK_FILE = "feedback.csv";
+    private String id; // Unique feedback ID
+    private String patientId;
+    private String comments;
+    private int rating;
 
-  public Feedback(String patientId, String comments, int rating) {
-    Random random = new Random();
-    this.id = String.valueOf(random.nextInt(9000) + 1000);
-    this.patientId = patientId;
-    this.comments = comments;
-    this.rating = rating;
-  }
-
-  public void save() throws IOException {
-    List<String> lines = Files.readAllLines(Paths.get("../data/feedback.csv"));
-    FileOutputStream output = new FileOutputStream("../data/feedback.csv");
-
-    for (int i = 0; i < lines.size(); i++) {
-      String line = lines.get(i) + "\n";
-      output.write(line.getBytes());
+    public Feedback(String patientId, String comments, int rating) {
+        this.id = UUID.randomUUID().toString().substring(0, 8); // Generate unique ID (first 8 chars)
+        this.patientId = patientId;
+        this.comments = comments;
+        this.rating = rating;
     }
 
-    String newEntry = this.id + "," + this.patientId + "," + this.comments + "," + this.rating;
-    output.write(newEntry.getBytes());
+    public void save() throws IOException {
+        File file = new File(FEEDBACK_FILE);
+        boolean isNewFile = !file.exists();
 
-    output.close();
-  }
+        try (PrintWriter pw = new PrintWriter(new FileWriter(file, true))) {
+            if (isNewFile) {
+                pw.println("id,patientId,comments,rating"); // Header row
+            }
+            pw.printf("%s,%s,%s,%d%n", this.id, this.patientId, this.comments.replace(",", " "), this.rating);
+        }
+    }
+
+    public static List<String> viewAllFeedback() throws IOException {
+        List<String> feedbackList = new ArrayList<>();
+        File file = new File(FEEDBACK_FILE);
+        if (!file.exists()) {
+            return feedbackList;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(FEEDBACK_FILE))) {
+            br.readLine(); // Skip header
+            String line;
+            while ((line = br.readLine()) != null) {
+                feedbackList.add(line);
+            }
+        }
+        return feedbackList;
+    }
 }
