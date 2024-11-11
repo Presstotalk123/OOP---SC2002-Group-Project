@@ -12,17 +12,23 @@ import java.util.List;
 public class Prescription {
     private String id;
     private String medicationName;
+    private int quantity;
     private PrescriptionStatus status;
 
-    public Prescription(String id, String medicationName, PrescriptionStatus status) {
+
+    public Prescription(String id, String medicationName, int quantity, PrescriptionStatus status) {
         this.id = id;
         this.medicationName = medicationName;
+        this.quantity = quantity;
         this.status = status;
     }
 
     public String getID() {
         return this.id;
     }
+    public int getQuantity(){return this.quantity;}
+    public void setQuantity(int quantity){this.quantity = quantity;}
+    public String getName(){return this.medicationName;}
 
     public String getMedicationName() {
         return medicationName;
@@ -39,48 +45,49 @@ public class Prescription {
     @Override
     public String toString() {
         return "Prescription ID: " + this.id +
-                ", Medication Name: " + this.medicationName +
+                ", Medication Name: " + this.medicationName +" Quantity: "+this.quantity+
                 ", Status: " + this.status.toString();
     }
 
     public void save() throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get("../data/prescription.csv"));
-        FileOutputStream output = new FileOutputStream("../data/prescription.csv");
-
-        boolean isEntryFound = false;
-        for (int i = 0; i < lines.size(); i++) {
-            String[] appt = lines.get(i).split(",");
-
-            if (appt.length == 3 && appt[0].equals(this.id)) {
-                String newEntry = this.id + "," + (this.medicationName) + "," + this.status.toString().toLowerCase()
-                        + "\n";
+        List<String> lines = Files.readAllLines(Paths.get(".../data/prescription.csv"));
+        try (FileOutputStream output = new FileOutputStream(".../data/prescription.csv")) {
+            boolean isEntryFound = false;
+            for (int i = 0; i < lines.size(); i++) {
+                String[] appt = lines.get(i).split(",");
+                if (appt.length == 4 && appt[0].equals(this.id)) {
+                    String newEntry = this.id + "," + this.medicationName + "," + this.quantity + "," + this.status.toString().toLowerCase() + "\n";
+                    output.write(newEntry.getBytes());
+                    isEntryFound = true;
+                } else {
+                    String line = lines.get(i) + "\n";
+                    output.write(line.getBytes());
+                }
+            }
+            if (!isEntryFound) {
+                String newEntry = this.id + "," + this.medicationName + "," + this.quantity + "," + this.status.toString().toLowerCase() + "\n";
                 output.write(newEntry.getBytes());
-                isEntryFound = true;
-            } else {
-                String line = lines.get(i) + "\n";
-                output.write(line.getBytes());
             }
         }
-
-        if (!isEntryFound) {
-            String newEntry = this.id + "," + (this.medicationName) + "," + this.status.toString().toLowerCase() + "\n";
-            output.write(newEntry.getBytes());
-        }
-
-        output.close();
     }
 
+
     public static List<Prescription> getAll() throws IOException {
-        List<Prescription> array = new ArrayList<Prescription>();
-        BufferedReader file = new BufferedReader(new FileReader("../data/prescription.csv"));
-        String nextLine = file.readLine();
-        while ((nextLine = file.readLine()) != null) {
-            String[] prescription = nextLine.split(",");
-            // TOOD: Add support for all kinds of users
-            PrescriptionStatus status = prescription[2].equals("dispensed") ? PrescriptionStatus.Dispensed : PrescriptionStatus.Pending;
-            array.add(new Prescription(prescription[0], prescription[1], status));
+        List<Prescription> array = new ArrayList<>();
+        try (BufferedReader file = new BufferedReader(new FileReader(".../data/prescription.csv"))) {
+            String nextLine;
+            boolean isFirstLine = true;
+            while ((nextLine = file.readLine()) != null) {
+                if (isFirstLine) {
+                    isFirstLine = false;
+                    continue; // Skip the header line
+                }
+                String[] prescription = nextLine.split(",");
+                PrescriptionStatus status = prescription[3].equals("dispensed") ? PrescriptionStatus.Dispensed : PrescriptionStatus.Pending;
+                int quantity = Integer.parseInt(prescription[2]);
+                array.add(new Prescription(prescription[0], prescription[1], quantity, status));
+            }
         }
-        file.close();
         return array;
     }
 
