@@ -55,16 +55,13 @@ public class Inventory {
      * @param filePath the path of the CSV file.
      */
     public void saveToCSV(String filePath) {
-        try (FileWriter fileWriter = new FileWriter(filePath, true);
-             PrintWriter printWriter = new PrintWriter(fileWriter)) {
+        try (FileWriter writer = new FileWriter(filePath)) {
+            writer.write("Name,Price,StockLevel,LowStockAlertLevel\n"); // Write the header
             for (Medication med : medications) {
-                printWriter.printf("%s,%d,%d%n",
-                        med.getMedicationName(),
-                        med.getStockLevel(),
-                        med.getLowStockAlertLevel());
+                writer.write(String.format("%s,%d,%d,%d\n", med.getMedicationName(), med.getPrice(), med.getStockLevel(), med.getLowStockAlertLevel()));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error saving inventory data: " + e.getMessage());
         }
     }
 
@@ -81,12 +78,13 @@ public class Inventory {
                     continue; // Skip the header line
                 }
                 String[] values = line.split(",");
-                if (values.length == 3) {
+                if (values.length == 4) {
                     try {
                         String medicationName = values[0];
-                        int stockLevel = Integer.parseInt(values[1]);
-                        int lowStockAlertLevel = Integer.parseInt(values[2]);
-                        medications.add(new Medication(medicationName, stockLevel, lowStockAlertLevel));
+                        int price = Integer.parseInt(values[1]);
+                        int stockLevel = Integer.parseInt(values[2]);
+                        int lowStockAlertLevel = Integer.parseInt(values[3]);
+                        medications.add(new Medication(medicationName, price, stockLevel, lowStockAlertLevel));
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid data format in inventory file: " + line);
                     }
