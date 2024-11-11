@@ -1,12 +1,9 @@
 package hms;
 
-// import java.io.FileWriter;
 import java.io.IOException;
-// import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-// import java.util.Date;
 
 class Main {
 
@@ -35,7 +32,7 @@ class Main {
 
     System.out.print("""
               What would you like to do?
-              1. Log In
+              1. Login
               2. Sign Up
               3. Exit
             """);
