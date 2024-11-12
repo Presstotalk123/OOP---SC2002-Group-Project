@@ -160,18 +160,29 @@ public class Administrator extends User {
     private void updateStaff(Scanner scanner) {
         System.out.println("Enter Staff ID to update:");
         String id = scanner.nextLine();
+        
         for (Staff staff : staffList) {
             if (staff.id.equals(id)) {
                 System.out.println("Updating Staff: " + staff);
-
-                // TODO: Confirm this. Are "role" and "gender" supposed to be updatable?
+    
                 System.out.print("Enter new Staff Name (or leave blank to keep current): ");
                 String newName = scanner.nextLine();
-                // System.out.println("Enter new Staff Role (or leave blank to keep current):");
-                // String newRole = scanner.nextLine();
-                // System.out.println("Enter new Staff Gender (or leave blank to keep
-                // current):"); // We being progressive fr
-                // String newGender = scanner.nextLine();
+    
+                System.out.print("Enter new Age (or leave blank to keep current): ");
+                String newAge = scanner.nextLine();
+    
+                while (true) { // Validate age if input is provided
+                    if (newAge.isEmpty()) {
+                        break; // Keep current age
+                    } else if (newAge.matches("\\d+")) {
+                        staff.age = Integer.parseInt(newAge);
+                        break;
+                    } else {
+                        System.out.print("Invalid age. Enter a valid number: ");
+                        newAge = scanner.nextLine();
+                    }
+                }
+    
                 while (true) {
                     System.out.print("Enter new Staff Phone Number (or leave blank to keep current): ");
                     String phoneNumber = scanner.nextLine();
@@ -183,7 +194,7 @@ public class Administrator extends User {
                         System.out.println(error.getMessage());
                     }
                 }
-
+    
                 while (true) {
                     System.out.print("Enter new Staff Email Address (or leave blank to keep current): ");
                     String email = scanner.nextLine();
@@ -195,14 +206,10 @@ public class Administrator extends User {
                         System.out.println(error.getMessage());
                     }
                 }
-
+    
                 if (!newName.isEmpty())
                     staff.setName(newName);
-                // if (!newRole.isEmpty())
-                // staff.setRole(newRole);
-                // if (!newGender.isEmpty())
-                // staff.setGender(newGender);
-
+    
                 saveStaffData(); // Save changes to the file
                 System.out.println("Staff member updated successfully.");
                 return;
@@ -210,21 +217,60 @@ public class Administrator extends User {
         }
         System.out.println("Staff member not found.");
     }
-
+    
+    //updated function to remove staff
     private void removeStaff(Scanner scanner) {
         System.out.println("Enter Staff ID to remove:");
         String id = scanner.nextLine();
-        for (int i = 0; i < staffList.size(); i++) {
-            if (staffList.get(i).id.equals(id)) {
-                staffList.remove(i);
-                saveStaffData(); // Save changes to the file
-                System.out.println("Staff member removed successfully.");
-                return;
+        
+        Staff staffToRemove = null;
+        for (Staff staff : staffList) {
+            if (staff.id.equals(id)) {
+                staffToRemove = staff;
+                break;
             }
         }
-        System.out.println("Staff member not found.");
+    
+        if (staffToRemove != null) {
+            staffList.remove(staffToRemove);
+            removeFromCSV("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\users.csv", id);
+            removeFromCSV("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\staff.csv", id);
+            System.out.println("Staff member removed successfully.");
+        } else {
+            System.out.println("Staff member not found.");
+        }
     }
-
+    //helper function to remove
+    private void removeFromCSV(String filePath, String id) {
+        try {
+            File inputFile = new File(filePath);
+            File tempFile = new File("temp.csv");
+    
+            try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+                 PrintWriter writer = new PrintWriter(new FileWriter(tempFile))) {
+                 
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] data = line.split(",");
+                    if (!data[0].equals(id)) { // Keep lines that don't match the ID
+                        writer.println(line);
+                    }
+                }
+            }
+    
+            // Replace the original file with the updated temp file
+            if (!inputFile.delete()) {
+                System.out.println("Could not delete original file.");
+                return;
+            }
+            if (!tempFile.renameTo(inputFile)) {
+                System.out.println("Could not rename temp file.");
+            }
+        } catch (IOException e) {
+            System.out.println("Error while removing staff from " + filePath + ": " + e.getMessage());
+        }
+    }
+    
     private void filterStaff(Scanner scanner) {
         System.out.println("Filter Staff Menu:");
         System.out.println("1. Filter by Role");
@@ -390,10 +436,31 @@ public class Administrator extends User {
     }
 
     private void approveReplenishmentRequest(Scanner scanner) {
-        System.out.println("Enter Replenishment Request ID to approve:");
+        List<ReplenishmentRequest> requests = ReplenishmentRequest.loadFromCSV(
+            "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\replenishment_requests.csv");
+    
+        if (requests.isEmpty()) {
+            System.out.println("No replenishment requests available.");
+            return;
+        }
+    
+        // Display all requests
+        System.out.println("\nReplenishment Requests:");
+        System.out.printf("%-15s %-20s %-10s %-10s%n", "Request ID", "Medication Name", "Quantity", "Status");
+        System.out.println("-------------------------------------------------------------");
+        for (ReplenishmentRequest request : requests) {
+            System.out.printf("%-15s %-20s %-10d %-10s%n",
+                    request.getRequestID(),
+                    request.getMedicationName(),
+                    request.getQuantity(),
+                    request.getStatus());
+        }
+    
+        // Prompt for request ID
+        System.out.println("\nEnter Replenishment Request ID to approve:");
         String requestID = scanner.nextLine();
-        List<ReplenishmentRequest> requests = ReplenishmentRequest.loadFromCSV("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\replenishment_requests.csv");
-
+    
+        // Find and approve the request
         for (ReplenishmentRequest request : requests) {
             if (request.getRequestID().equals(requestID)) {
                 Medication item = inventory.getMedication(request.getMedicationName());
@@ -401,7 +468,7 @@ public class Administrator extends User {
                     item.updateStockLevel(item.getStockLevel() + request.getQuantity());
                     request.setStatus("Approved");
                     saveInventoryData(); // Save changes to the inventory file
-                    saveReplenishmentRequests(requests); // Save changes to the replenishment requests file
+                    saveReplenishmentRequests(requests); // Save changes to the requests file
                     System.out.println("Replenishment request approved for " + request.getMedicationName());
                 } else {
                     System.out.println("Inventory item not found.");
@@ -411,6 +478,7 @@ public class Administrator extends User {
         }
         System.out.println("Replenishment request not found.");
     }
+    
 
     private void saveReplenishmentRequests(List<ReplenishmentRequest> requests) {
         try (PrintWriter writer = new PrintWriter(new FileWriter("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\replenishment_requests.csv"))) {
@@ -570,11 +638,13 @@ public class Administrator extends User {
         }
 
     }
-
+// work with interface Samarth I dont know how to do this
     private void loadAppointmentData() {
         // Implement file loading logic for appointment data
         // You can follow a similar structure to loadStaffData
     }
+
+    
     private void loadInventoryData() {
         try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\inventory.csv"))) {
             String line;
