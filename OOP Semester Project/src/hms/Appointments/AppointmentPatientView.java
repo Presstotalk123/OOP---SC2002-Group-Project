@@ -6,17 +6,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import hms.Doctor;
-
 public interface AppointmentPatientView {
 
   String getId();
 
-  String getDateString();
-
-  String getTimeString();
-
-  Doctor getDoctor();
+  String getDateTime();
 
   Optional<String> getPatientId();
 
