@@ -85,16 +85,6 @@ public abstract class Staff extends User {
 
     }
 
-    public Staff(String id) throws IOException {
-        super(id);
-        String[] staffData = Staff.loadStaffDataFromFile(id);
-        this.gender = staffData[1].equals("male") ? Gender.Male : Gender.Female;
-        this.age = Integer.parseInt(staffData[2]);
-        this.phoneNumber = staffData[4];
-        this.emailAddress = staffData[5];
-        this.specialization = staffData[6];
-    }
-
     public Staff(String id, String name, String password, String role) throws IOException {
         super(id, name, password, role);
         String[] staffData = Staff.loadStaffDataFromFile(id);
@@ -102,7 +92,6 @@ public abstract class Staff extends User {
         this.age = Integer.parseInt(staffData[2]);
         this.phoneNumber = staffData[4];
         this.emailAddress = staffData[5];
-        this.specialization = staffData[6];
     }
 
     public String getRole() {
@@ -135,8 +124,8 @@ public abstract class Staff extends User {
 
     public void save() throws IOException {
         // staff.csv: id,gender,age,role,phoneNumber,email
-        List<String> lines = Files.readAllLines(Paths.get("../data/staff.csv"));
-        FileOutputStream output = new FileOutputStream("../data/staff.csv");
+        List<String> lines = Files.readAllLines(Paths.get("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\staff.csv"));
+        FileOutputStream output = new FileOutputStream("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\staff.csv");
 
         boolean isEntryFound = false;
         for (int i = 0; i < lines.size(); i++) {
@@ -163,7 +152,7 @@ public abstract class Staff extends User {
     }
 
     private static String[] loadStaffDataFromFile(String id) throws IOException {
-        BufferedReader file = new BufferedReader(new FileReader("../data/staff.csv"));
+        BufferedReader file = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\staff.csv"));
 
         String nextLine = file.readLine();
         while ((nextLine = file.readLine()) != null) {
