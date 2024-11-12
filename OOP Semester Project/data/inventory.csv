@@ -1,5 +1,3 @@
-medicationName,stockLevel,lowStockAlertLevel
-Crocin,10000,2000
-LCZ,4000,500
-Panadol,2000,1000
-Dolo,4000,1500
+medicationName,price,stockLevel,lowStockAlertLevel
+dolo,20,150,10
+allegra,10,498,10
