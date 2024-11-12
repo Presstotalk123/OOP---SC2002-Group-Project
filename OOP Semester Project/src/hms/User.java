@@ -3,14 +3,17 @@ package hms;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public abstract class User {
   public String id;
   public String name;
   private String password;
-  public String role;
+  public final String role;
 
   // When a constructor with a scanner is used, it is expected for the subclass to
   // prompt for data.
@@ -33,54 +36,19 @@ public abstract class User {
     }
 
     Random rand = new Random();
-    List<String> existingIds = Files.readAllLines(Paths.get(".../data/users.csv"))
+    List<String> existingIds = Files.readAllLines(Paths.get("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\users.csv"))
             .stream()
             .map(line -> line.split(",")[0])
             .collect(Collectors.toList());
-if(Objects.equals(role, "patient")){
+
     while (true) {
-      int ID = rand.nextInt(9000) + 1000;
-      String id="P"+ID;
-      if (!existingIds.contains(id)) {
+      int id = rand.nextInt(9000) + 1000;
+      if (!existingIds.contains(Integer.toString(id))) {
         System.out.println("Your ID is: " + id);
-        this.id = id;
+        this.id = Integer.toString(id);
         break;
       }
     }
-}
-else if(Objects.equals(role, "doctor")){
-      while (true) {
-        int ID = rand.nextInt(900) + 100;
-        String id="D"+ID;
-        if (!existingIds.contains(id)) {
-          System.out.println("Your ID is: " + id);
-          this.id = id;
-          break;
-        }
-      }
-    }
-else if(Objects.equals(role, "administrator")){
-  while (true) {
-    int ID = rand.nextInt(900) + 100;
-    String id="A"+ID;
-    if (!existingIds.contains(id)) {
-      System.out.println("Your ID is: " + id);
-      this.id = id;
-      break;
-    }
-  }
-}
-else if(Objects.equals(role, "pharmacist")){
-  while (true) {
-    int ID = rand.nextInt(900) + 100;
-    String id="P"+ID;
-    if (!existingIds.contains(id)) {
-      System.out.println("Your ID is: " + id);
-      this.id = id;
-      break;
-    }
-  }
-}
     this.name = name;
     this.password = password;
     this.role = role;
@@ -100,7 +68,7 @@ else if(Objects.equals(role, "pharmacist")){
 
   public static List<User> loadFromFile(String path) throws IOException {
     List<User> userArray = new ArrayList<User>();
-    String absolutePath = ".../data/users.csv";
+    String absolutePath = "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\users.csv";
     BufferedReader file = new BufferedReader(new FileReader(path));
     String nextLine = file.readLine();
     while ((nextLine = file.readLine()) != null) {
@@ -122,8 +90,8 @@ else if(Objects.equals(role, "pharmacist")){
   }
 
   public void save() throws IOException {
-    List<String> lines = Files.readAllLines(Paths.get(".../data/users.csv"));
-    FileOutputStream output = new FileOutputStream(".../data/users.csv");
+    List<String> lines = Files.readAllLines(Paths.get("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\users.csv"));
+    FileOutputStream output = new FileOutputStream("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\users.csv");
 
     boolean isEntryFound = false;
     for (int i = 0; i < lines.size(); i++) {
