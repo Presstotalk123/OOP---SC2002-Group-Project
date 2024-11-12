@@ -10,5 +10,5 @@ public interface MedicalRecordPatientView {
   void updatePhoneNumber(String phoneNumber);
 
   void saveToFile() throws IOException;
-
+  
 }
