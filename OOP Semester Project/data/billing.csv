@@ -1,1 +1,4 @@
-BillingId,PatientId,Description,Amount,Paid
+BillId,PatientId,Description,Amount,IsPaid
+"BILL1731423356150","1","Billing for prescription IDs: 6986, 6164",500.00,false
+"BILL1731424747395","1","Billing for prescription IDs: 6986, 6164",450.00,false
+"BILL1731427575906","1","Billing for prescription IDs: 5895, 6201",350.00,false
