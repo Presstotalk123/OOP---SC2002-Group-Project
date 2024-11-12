@@ -222,14 +222,14 @@ public class Patient extends User {
     }
 }
 
-    private void viewAppointmentOutcomeRecords(Scanner scanner) {
+private void viewAppointmentOutcomeRecords(Scanner scanner) {
     System.out.print("Enter the appointment ID to search: ");
     String searchAppointmentId = scanner.nextLine();
     String filePath = "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointment_outcome_records.csv";
 
     try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
         String line;
-        boolean recordFound = false;
+        int recordFound = 0;
 
         while ((line = br.readLine()) != null) {
             String[] record = line.split(",");
@@ -246,12 +246,11 @@ public class Patient extends User {
                 System.out.println("Prescribed Medications: " + record[3].replace(";", ", "));
                 System.out.println("Consultation Notes: " + record[4]);
                 System.out.println();  // Blank line between records
-                recordFound = true;
-                break;
+                recordFound +=1;
             }
         }
 
-        if (!recordFound) {
+        if (recordFound==0) {
             System.out.println("No record found for Appointment ID: " + searchAppointmentId);
         }
 
@@ -259,9 +258,8 @@ public class Patient extends User {
         System.out.println("Error reading appointment outcome records: " + e.getMessage());
     } catch (NumberFormatException e) {
         System.out.println("Error parsing date in record. Record might be malformed.");
-    }
 }
-
+}
 private void giveFeedback(Scanner scanner) {
     System.out.println("What was your experience with our hospital management system? How can we improve?");
     String comments = scanner.nextLine().trim();
