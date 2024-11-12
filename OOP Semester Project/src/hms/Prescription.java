@@ -120,7 +120,7 @@ public class Prescription {
 
         return prescriptions;
     }
-
+    
     public static String generateRandomPrescriptionID() {
         int randomId = new Random().nextInt(9000) + 1000; // Generate a 4-digit ID
         return Integer.toString(randomId);
