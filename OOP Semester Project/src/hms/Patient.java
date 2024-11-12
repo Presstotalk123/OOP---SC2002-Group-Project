@@ -39,7 +39,8 @@ public class Patient extends User {
                 4. Reschedule/Cancel Existing Appointment
                 5. View all your Appointment Statuses
                 6. View Appointment Outcome Records
-                7. Log Out
+                7. Add Allergy!
+                8. Log Out
                 Enter your choice:""");
         int choice = scanner.nextInt();
         scanner.nextLine();
@@ -78,6 +79,9 @@ public class Patient extends User {
                 System.out.println("Not Implemented Yet\n");
                 break;
             case 7:
+                 this.addAllergyToMedicalRecord(scanner);
+                 break;
+            case 8:
                 return false;
             default:
                 System.out.println("Invalid choice. Please enter a number from 1 to 7.");
