@@ -1,9 +1,11 @@
 package hms;
 
+// import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+// import java.util.Date;
 
 class Main {
 
@@ -22,7 +24,7 @@ class Main {
     // Load data on program startup
     List<User> users;
     try {
-      users = User.loadAllUsers();
+      users = User.loadFromFile("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\users.csv");
       System.out.println(users);
     } catch (IOException error) {
       System.out.println("Error occurred when loading data: ");
@@ -32,7 +34,7 @@ class Main {
 
     System.out.print("""
               What would you like to do?
-              1. Login
+              1. Log In
               2. Sign Up
               3. Exit
             """);
