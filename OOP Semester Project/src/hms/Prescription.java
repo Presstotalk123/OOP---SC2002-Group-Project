@@ -1,20 +1,17 @@
 package hms;
 
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Prescription {
-    private String id;
+    private String id; // Prescription ID
     private String medicationName;
-    private int quantity;
+    private int quantity; // New field for quantity
     private PrescriptionStatus status;
-
 
     public Prescription(String id, String medicationName, int quantity, PrescriptionStatus status) {
         this.id = id;
@@ -26,16 +23,21 @@ public class Prescription {
     public String getID() {
         return this.id;
     }
-    public int getQuantity(){return this.quantity;}
-    public void setQuantity(int quantity){this.quantity = quantity;}
-    public String getName(){return this.medicationName;}
 
     public String getMedicationName() {
-        return medicationName;
+        return this.medicationName;
+    }
+
+    public int getQuantity() {
+        return this.quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public PrescriptionStatus getStatus() {
-        return status;
+        return this.status;
     }
 
     public void updateStatus(PrescriptionStatus newStatus) {
@@ -45,50 +47,82 @@ public class Prescription {
     @Override
     public String toString() {
         return "Prescription ID: " + this.id +
-                ", Medication Name: " + this.medicationName +" Quantity: "+this.quantity+
-                ", Status: " + this.status.toString();
+                ", Medication Name: " + this.medicationName +
+                ", Quantity: " + this.quantity +
+                ", Status: " + this.status;
     }
 
     public void save() throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get(".../data/prescription.csv"));
-        try (FileOutputStream output = new FileOutputStream(".../data/prescription.csv")) {
-            boolean isEntryFound = false;
-            for (int i = 0; i < lines.size(); i++) {
-                String[] appt = lines.get(i).split(",");
-                if (appt.length == 4 && appt[0].equals(this.id)) {
-                    String newEntry = this.id + "," + this.medicationName + "," + this.quantity + "," + this.status.toString().toLowerCase() + "\n";
-                    output.write(newEntry.getBytes());
-                    isEntryFound = true;
-                } else {
-                    String line = lines.get(i) + "\n";
-                    output.write(line.getBytes());
-                }
+        String filePath = "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\prescription.csv";
+        File file = new File(filePath);
+        String header = "Prescription ID,Medication Name,Quantity,Status";
+
+        if (!file.exists()) {
+            try (PrintWriter pw = new PrintWriter(new FileWriter(filePath))) {
+                pw.println(header);
             }
-            if (!isEntryFound) {
-                String newEntry = this.id + "," + this.medicationName + "," + this.quantity + "," + this.status.toString().toLowerCase() + "\n";
-                output.write(newEntry.getBytes());
+        }
+
+        List<String> lines = Files.readAllLines(Paths.get(filePath));
+        boolean isEntryFound = false;
+        List<String> updatedLines = new ArrayList<>();
+        updatedLines.add(header); // Preserve header
+
+        for (String line : lines) {
+            if (line.trim().isEmpty() || line.equals(header)) continue;
+
+            String[] parts = line.split(",");
+            if (parts[0].trim().equals(this.id)) {
+                isEntryFound = true;
+                updatedLines.add(this.id + "," + this.medicationName + "," + this.quantity + "," + this.status.toString().toLowerCase());
+            } else {
+                updatedLines.add(line);
+            }
+        }
+
+        if (!isEntryFound) {
+            System.out.println("Saving new prescription: " + this); // Debugging
+            updatedLines.add(this.id + "," + this.medicationName + "," + this.quantity + "," + this.status.toString().toLowerCase());
+        }
+
+        try (PrintWriter pw = new PrintWriter(new FileWriter(filePath, false))) {
+            for (String line : updatedLines) {
+                pw.println(line);
             }
         }
     }
-
 
     public static List<Prescription> getAll() throws IOException {
-        List<Prescription> array = new ArrayList<>();
-        try (BufferedReader file = new BufferedReader(new FileReader(".../data/prescription.csv"))) {
-            String nextLine;
-            boolean isFirstLine = true;
-            while ((nextLine = file.readLine()) != null) {
-                if (isFirstLine) {
-                    isFirstLine = false;
-                    continue; // Skip the header line
+        List<Prescription> prescriptions = new ArrayList<>();
+        String filePath = "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\prescription.csv";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String header = br.readLine();
+            if (header == null || !header.trim().equals("Prescription ID,Medication Name,Quantity,Status")) {
+                throw new IOException("Invalid or missing header in prescription file.");
+            }
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length < 4) {
+                    System.err.println("Skipping malformed record: " + line);
+                    continue;
                 }
-                String[] prescription = nextLine.split(",");
-                PrescriptionStatus status = prescription[3].equals("dispensed") ? PrescriptionStatus.Dispensed : PrescriptionStatus.Pending;
-                int quantity = Integer.parseInt(prescription[2]);
-                array.add(new Prescription(prescription[0], prescription[1], quantity, status));
+
+                int quantity = Integer.parseInt(parts[2]);
+                PrescriptionStatus status = parts[3].equalsIgnoreCase("dispensed") ?
+                        PrescriptionStatus.Dispensed : PrescriptionStatus.Pending;
+
+                prescriptions.add(new Prescription(parts[0], parts[1], quantity, status));
             }
         }
-        return array;
+
+        return prescriptions;
     }
 
+    public static String generateRandomPrescriptionID() {
+        int randomId = new Random().nextInt(9000) + 1000; // Generate a 4-digit ID
+        return Integer.toString(randomId);
+    }
 }
