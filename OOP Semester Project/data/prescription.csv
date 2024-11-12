@@ -1,1 +1,5 @@
-Prescription ID,Medication Name,Status
+Prescription ID,Medication Name,Quantity,Status
+6986,dolo,10,pending
+6164,allegra,20,pending
+5895,dolo,10,pending
+6201,allegra,10,dispensed
