@@ -43,24 +43,47 @@ public class Billing {
 
     public void addBill(String billId, String patientId, List<String> prescriptionIds) throws IOException {
         double totalAmount = 0;
+        List<String> medicationNames = new ArrayList<>(); // 🔍 Collect medication names here.
+        
         for (String prescriptionId : prescriptionIds) {
             if (!isValidPrescription(prescriptionId)) {
                 System.out.println("Invalid prescription ID: " + prescriptionId);
                 continue;
             }
             totalAmount += calculateBillAmountWithoutDoctorFee(prescriptionId); // Updated method to exclude doctor's fee
+            
+            // 🔍 Fetch and store medication names for this prescription.
+            medicationNames.addAll(getMedicationNamesFromPrescription(prescriptionId));
         }
     
         // Add the doctor's fee once for the entire bill
         totalAmount += 50;
     
-        String description = "Billing for prescription IDs: " + String.join(", ", prescriptionIds);
+        // 🔍 Use medication names in the bill description
+        String description = "Billing for medications: " + String.join(", ", medicationNames);
     
         Bill bill = new Bill(billId, patientId, description, totalAmount, false);
         blockchain.addBlock(new Block(bill.toString(), blockchain.getLatestBlock().hash));
         saveBlockchain();
         updateBillingFile(bill);
     }
+    //helper function to retrieve medication names from prescription ID!
+    private List<String> getMedicationNamesFromPrescription(String prescriptionId) throws IOException {
+        List<String> medicationNames = new ArrayList<>(); // 🔍 Collect medication names
+        
+        try (BufferedReader prescriptionReader = new BufferedReader(new FileReader(PRESCRIPTION_FILE))) {
+            String line;
+            prescriptionReader.readLine(); // Skip header
+            
+            while ((line = prescriptionReader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts[0].equals(prescriptionId)) {
+                    medicationNames.add(parts[1]); // 🔍 Assuming medication name is in the second column
+                }
+            }
+        }
+        return medicationNames; // 🔍 Return the list of medication names
+    }    
     
     public double calculateBillAmountWithoutDoctorFee(String prescriptionId) throws IOException {
         double totalAmount = 0;
