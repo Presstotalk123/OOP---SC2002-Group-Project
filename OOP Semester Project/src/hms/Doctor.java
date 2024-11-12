@@ -94,20 +94,30 @@ public class Doctor extends Staff {
             case 2:
                 System.out.print("Enter the patient ID: ");
                 String patientId2 = scanner.nextLine();
+                
                 try {
                     List<String[]> medicalRecords = viewMedicalRecord(patientId2);
-                    for (String[] record : medicalRecords) {
-                        System.out.println(String.join(", ", record));
+                    if (medicalRecords.isEmpty()) {
+                        System.out.println("No medical records found for the given patient ID.");
+                        break;
                     }
-                    System.out.print("Enter the index of the record to update: ");
-                    int index = scanner.nextInt();
-                    scanner.nextLine();
-                    System.out.print("Enter the updated record: ");
-                    String updatedRecord = scanner.nextLine();
-                    medicalRecords.get(index)[1] = updatedRecord;
-                    updateMedicalRecord(patientId2, medicalRecords.get(index));
+            
+                    // Since there is no index needed, display the current record
+                    String[] recordToUpdate = medicalRecords.get(0); // Assuming only one record per unique patient ID
+                    System.out.println("Current Record: " + String.join(", ", recordToUpdate));
+            
+                    // Prompt for updated values for each field
+                    String[] updatedRecord = new String[recordToUpdate.length];
+                    for (int i = 0; i < recordToUpdate.length; i++) {
+                        System.out.printf("Enter new value for %s (current: %s): ", getFieldLabel(i), recordToUpdate[i]);
+                        String newValue = scanner.nextLine().trim();
+                        updatedRecord[i] = newValue.isEmpty() ? recordToUpdate[i] : newValue; // Keep old value if input is empty
+                    }
+            
+                    // Update the record directly
+                    updateMedicalRecord(patientId2, updatedRecord);
                 } catch (IOException e) {
-                    System.out.println("Error reading medical records: " + e.getMessage());
+                    System.out.println("Error updating medical records: " + e.getMessage());
                 }
                 break;
             case 3:
@@ -253,6 +263,12 @@ public class Doctor extends Staff {
             System.out.println("Invalid input. Please enter a valid number.\n");
             scanner.nextLine(); // Clear the invalid input
         }
+    }
+    
+    private String getFieldLabel(int index) {
+        // Replace these with actual column labels in your CSV
+        String[] labels = {"Patient ID", "Name", "Age", "Gender", "Diagnosis", "Visit Date"};
+        return index < labels.length ? labels[index] : "Field " + index;
     }
     
 
@@ -485,29 +501,41 @@ public class Doctor extends Staff {
     }
     
     public void updateMedicalRecord(String patientId, String[] updatedRecord) throws IOException {
-        List<String[]> medicalRecords = new ArrayList<>();
-        String line;
+        String filePath = "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\Patient.csv";
         String separator = ",";
-
-        try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\Patient.csv"))) {
-            // Read all lines and store them in a list
+        List<String[]> allRecords = new ArrayList<>();
+    
+        // Read all records from file
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
             while ((line = br.readLine()) != null) {
-                String[] record = line.split(separator);
-                if (record.length > 0 && record[0].equals(patientId)) {
-                    medicalRecords.add(updatedRecord); // Add updated record
-                } else {
-                    medicalRecords.add(record); // Add existing record
+                allRecords.add(line.split(separator));
+            }
+        }
+    
+        // Update the matching record
+        boolean updated = false;
+        for (int i = 0; i < allRecords.size(); i++) {
+            if (allRecords.get(i)[0].equals(patientId)) { // Match patient ID
+                allRecords.set(i, updatedRecord);
+                updated = true;
+                break;
+            }
+        }
+    
+        if (updated) {
+            // Write all records back to the file
+            try (PrintWriter pw = new PrintWriter(new FileWriter(filePath))) {
+                for (String[] record : allRecords) {
+                    pw.println(String.join(separator, record));
                 }
             }
-        }
-
-        // Write the updated records back to the CSV file
-        try (PrintWriter pw = new PrintWriter(new FileWriter("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\Patient.csv"))) {
-            for (String[] record : medicalRecords) {
-                pw.println(String.join(separator, record));
-            }
+            System.out.println("Medical record updated successfully.");
+        } else {
+            System.out.println("Patient ID not found.");
         }
     }
+    
     private void viewPersonalSchedule() {
         String filePath = "C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointments.csv";
         List<Appointment> personalSchedule = new ArrayList<>();
