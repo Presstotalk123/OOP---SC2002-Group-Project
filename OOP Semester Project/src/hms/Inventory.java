@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +68,7 @@ public class Inventory {
 
     public void loadFromCSV() {
         medications.clear();
-        try (BufferedReader br = new BufferedReader(new FileReader("../data/inventory.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\inventory.csv"))) {
             String line;
             boolean isFirstLine = true;
             while ((line = br.readLine()) != null) {
