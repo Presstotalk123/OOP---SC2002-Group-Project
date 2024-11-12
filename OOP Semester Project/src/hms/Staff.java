@@ -1,9 +1,6 @@
 package hms;
 
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -14,8 +11,7 @@ public abstract class Staff extends User {
     public int age;
     public String phoneNumber;
     public String emailAddress;
-
-    public String specialization="NA";
+    public String specialization = "NA"; // Default to "NA" if not a doctor
 
     public Staff(Scanner scanner, String role) throws IOException {
         super(scanner, role);
@@ -24,6 +20,8 @@ public abstract class Staff extends User {
         } catch (IOException error) {
             System.out.println("Unable to save user " + name + " due to IOException: " + error.getMessage());
         }
+
+        // Gender input
         while (true) {
             System.out.print("Enter the gender for this user (male or female): ");
             String gender = scanner.nextLine().toLowerCase();
@@ -38,21 +36,23 @@ public abstract class Staff extends User {
             }
         }
 
+        // Age input
         while (true) {
             System.out.print("Enter the age for this user: ");
-            String age = scanner.nextLine().toLowerCase();
-            if (age.matches("^([0-9]+)$")) {
+            String age = scanner.nextLine();
+            if (age.matches("^\\d+$")) {
                 this.age = Integer.parseInt(age);
                 break;
             } else {
-                System.out.println("Invalid entry. Please specify in the format 91234567.");
+                System.out.println("Invalid entry. Please enter a valid age.");
             }
         }
 
+        // Phone number input
         while (true) {
             System.out.print("Enter the phone number for this user (Singaporean Numbers Only, like 91234567): ");
-            String number = scanner.nextLine().toLowerCase();
-            if (number.matches("^([0-9]{8})$") && number.length() == 8) {
+            String number = scanner.nextLine();
+            if (number.matches("^\\d{8}$")) {
                 this.phoneNumber = number;
                 break;
             } else {
@@ -60,20 +60,23 @@ public abstract class Staff extends User {
             }
         }
 
+        // Email input
         while (true) {
             System.out.print("Enter the email address for this user: ");
-            String email = scanner.nextLine().toLowerCase();
-            if (email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            String email = scanner.nextLine();
+            if (email.matches("^[\\w.-]+@[\\w-]+\\.[a-z]{2,}$")) {
                 this.emailAddress = email;
                 break;
             } else {
                 System.out.println("Invalid entry. Please enter a valid email address.");
             }
         }
-        if(role=="doctor"){
-            while(true){
+
+        // Specialization input (only for doctors)
+        if (role.equals("doctor")) {
+            while (true) {
                 System.out.print("Enter the specialization for this doctor: ");
-                String specialization = scanner.nextLine().toLowerCase();
+                String specialization = scanner.nextLine();
                 if (specialization.matches("^[a-zA-Z]+$")) {
                     this.specialization = specialization;
                     break;
@@ -82,16 +85,16 @@ public abstract class Staff extends User {
                 }
             }
         }
-
     }
 
     public Staff(String id, String name, String password, String role) throws IOException {
         super(id, name, password, role);
         String[] staffData = Staff.loadStaffDataFromFile(id);
-        this.gender = staffData[1].equals("male") ? Gender.Male : Gender.Female;
+        this.gender = staffData[1].equalsIgnoreCase("male") ? Gender.Male : Gender.Female;
         this.age = Integer.parseInt(staffData[2]);
         this.phoneNumber = staffData[4];
         this.emailAddress = staffData[5];
+        this.specialization = staffData.length > 6 ? staffData[6] : "NA"; // Default to "NA" if no specialization
     }
 
     public String getRole() {
@@ -103,7 +106,7 @@ public abstract class Staff extends User {
     }
 
     public void updatePhoneNumber(String phoneNumber) throws Exception {
-        if (phoneNumber.matches("^([0-9]{8})$") && phoneNumber.length() == 8) {
+        if (phoneNumber.matches("^\\d{8}$")) {
             this.phoneNumber = phoneNumber;
         } else {
             throw new Exception("Invalid entry. Please specify in the format 91234567.");
@@ -111,7 +114,7 @@ public abstract class Staff extends User {
     }
 
     public void updateEmailAddress(String email) throws Exception {
-        if (phoneNumber.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+        if (email.matches("^[\\w.-]+@[\\w-]+\\.[a-z]{2,}$")) {
             this.emailAddress = email;
         } else {
             throw new Exception("Invalid entry. Please enter a valid email address.");
@@ -122,29 +125,31 @@ public abstract class Staff extends User {
         this.name = name;
     }
 
+    public void setAge(int age) {
+        this.age = age;
+    }
+
     public void save() throws IOException {
-        // staff.csv: id,gender,age,role,phoneNumber,email
         List<String> lines = Files.readAllLines(Paths.get("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\staff.csv"));
         FileOutputStream output = new FileOutputStream("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\staff.csv");
 
         boolean isEntryFound = false;
-        for (int i = 0; i < lines.size(); i++) {
-            String[] appt = lines.get(i).split(",");
+        for (String line : lines) {
+            String[] appt = line.split(",");
 
-            if (appt.length == 6 && appt[0].equals(this.id)) {
+            if (appt[0].equals(this.id)) {
                 String newEntry = this.id + "," + this.gender.toString().toLowerCase() + "," + this.age + ","
-                        + this.role + "," + this.phoneNumber + "," + this.emailAddress + ","+ this.specialization + "\n";
+                        + this.role + "," + this.phoneNumber + "," + this.emailAddress + "," + this.specialization + "\n";
                 output.write(newEntry.getBytes());
                 isEntryFound = true;
             } else {
-                String line = lines.get(i) + "\n";
-                output.write(line.getBytes());
+                output.write((line + "\n").getBytes());
             }
         }
 
         if (!isEntryFound) {
             String newEntry = this.id + "," + this.gender.toString().toLowerCase() + "," + this.age + ","
-                        + this.role + "," + this.phoneNumber + "," + this.emailAddress + ","+ this.specialization+"\n";
+                    + this.role + "," + this.phoneNumber + "," + this.emailAddress + "," + this.specialization + "\n";
             output.write(newEntry.getBytes());
         }
 
@@ -153,62 +158,17 @@ public abstract class Staff extends User {
 
     private static String[] loadStaffDataFromFile(String id) throws IOException {
         BufferedReader file = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\staff.csv"));
+        String nextLine;
 
-        String nextLine = file.readLine();
         while ((nextLine = file.readLine()) != null) {
             String[] staff = nextLine.split(",");
-
-            if (staff.length < 6) {
-                continue;
-            }
-
-            String currentId = staff[0];
-
-            if (currentId.equals(id)) {
+            if (staff[0].equals(id)) {
                 file.close();
                 return staff;
             }
         }
 
         file.close();
-        throw new IOException("Missing or Invalid Patient Data found in staff.csv for patient with ID: " + id);
+        throw new IOException("Missing or Invalid Staff Data found in staff.csv for staff with ID: " + id);
     }
-
-    // public String getId() {
-    // return id;
-    // }
-
-    // public String getName() {
-    // return name;
-    // }
-
-    // public void setName(String name) {
-    // this.name = name;
-    // }
-
-    // public String getRole() {
-    // return role;
-    // }
-
-    // public void setRole(String role) {
-    // this.role = role;
-    // }
-
-    // public String getGender() {
-    // return gender;
-    // }
-
-    // public void setGender(String gender) {
-    // this.gender = gender;
-    // }
-
-    // @Override
-    // public String toString() {
-    // return "Staff{" +
-    // "ID='" + id + '\'' +
-    // ", Name='" + name + '\'' +
-    // ", Role='" + role + '\'' +
-    // ", Gender='" + gender + '\'' +
-    // '}';
-    // }
 }
