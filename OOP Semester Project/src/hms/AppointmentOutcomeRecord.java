@@ -76,34 +76,41 @@ public class AppointmentOutcomeRecord {
 
     public static List<AppointmentOutcomeRecord> getAllRecords() {
         List<AppointmentOutcomeRecord> records = new ArrayList<>();
-
+    
         try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\welcome\\Desktop\\sam2\\OOP---SC2002-Group-Project-sam2\\OOP Semester Project\\data\\appointment_outcome_records.csv"))) {
             String line;
+    
+            // Skip the header row
+            br.readLine();
+    
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(",");
                 if (values.length < 5) {
                     System.err.println("Skipping malformed record: " + line);
                     continue;
                 }
-
+    
                 String appointmentID = values[0];
                 Date dateOfAppointment = new Date(Long.parseLong(values[1])); // Parse timestamp
                 String serviceType = values[2];
                 List<String> prescriptionIds = Arrays.asList(values[3].split(";"));
-
+    
                 List<Prescription> prescribedMedications = Prescription.getAll().stream()
                         .filter(p -> prescriptionIds.contains(p.getID()))
                         .collect(Collectors.toList());
-
+    
                 String consultationNotes = values[4];
                 records.add(new AppointmentOutcomeRecord(appointmentID, dateOfAppointment, serviceType, prescribedMedications, consultationNotes));
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing number: " + e.getMessage());
         }
-
+    
         return records;
     }
+    
 
     public void saveToCSV(String filePath) {
         try (FileWriter fileWriter = new FileWriter(filePath, true);
